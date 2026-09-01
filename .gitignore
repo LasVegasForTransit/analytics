@@ -1,11 +1,8 @@
 node_modules/
 dist/
-dist-archive/
 coverage/
+.turbo/
 .wrangler/
-.astro/
-playwright-report/
-test-results/
 .env
 .env.*
 !.env.example

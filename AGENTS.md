@@ -7,14 +7,15 @@ command that fixes it (`pnpm check:fix` repairs everything a machine can).
 
 Every LVBT repository answers to the same commands:
 
-| Command          | What it does                                             |
-| ---------------- | -------------------------------------------------------- |
-| `pnpm bootstrap` | Install dependencies, wire git hooks, and run preflight  |
-| `pnpm preflight` | Confirm the machine can build and deploy this repository |
-| `pnpm check`     | Format check, lint, typecheck, and tests, in that order  |
-| `pnpm check:fix` | Apply formatting and lint fixes                          |
-| `pnpm build`     | Produce the deployable output                            |
-| `pnpm test`      | Run the unit tests under `tests/`                        |
+| Command               | What it does                                                    |
+| --------------------- | --------------------------------------------------------------- |
+| `pnpm bootstrap`      | Install dependencies, wire git hooks, and run preflight         |
+| `pnpm preflight`      | Confirm the machine can build and deploy this repository        |
+| `pnpm check`          | Format check, then lint, typecheck, and tests through Turborepo |
+| `pnpm check:fix`      | Apply formatting and lint fixes                                 |
+| `pnpm build`          | Build every package                                             |
+| `pnpm test`           | Run every package's tests                                       |
+| `turbo gen workspace` | Scaffold a new package or app                                   |
 
 ## Create GitHub issues and pull requests
 
@@ -23,9 +24,9 @@ authorizes creating an issue or pull request. It carries the organization checkl
 templates, and the only approved creation helper:
 
 ```bash
-node node_modules/@lvbt/repository-tooling/plugins/lvbt-contributions/scripts/github-create.mjs issue \
+node node_modules/@lvbt/cli/plugins/lvbt-contributions/scripts/github-create.mjs issue \
   --type bug|feature --title <title> --body-file <file>
-node node_modules/@lvbt/repository-tooling/plugins/lvbt-contributions/scripts/github-create.mjs pr \
+node node_modules/@lvbt/cli/plugins/lvbt-contributions/scripts/github-create.mjs pr \
   --title <title> --body-file <file> --base main
 ```
 
@@ -43,5 +44,3 @@ change crosses boundaries; never invent one for a feature, file, task, or role.
 
 Lint, format, TypeScript, and test settings extend the `@lvbt/*` packages from
 `LasVegasForTransit/repository-tooling`. Change a shared rule there, not here.
-`pnpm exec lvbt-repository-tooling diff` shows where this repository has drifted from the current
-standard.

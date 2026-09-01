@@ -1,9 +1,6 @@
 # One scope per durable boundary in this repository.
 # Omit a scope when a change crosses boundaries.
 client
-astro
-react
-cli
 collector
 report
 docs

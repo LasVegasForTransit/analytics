@@ -1,39 +1,30 @@
 {
-  "name": "@lvbt/analytics-workspace",
+  "name": "lvbt-analytics",
   "private": true,
   "type": "module",
+  "scripts": {
+    "bootstrap": "lvbt bootstrap",
+    "preflight": "lvbt preflight",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "check-types": "turbo run check-types",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm format:check && turbo run lint check-types test",
+    "check:fix": "pnpm format && turbo run lint -- --fix",
+    "prepare": "git config --local core.hooksPath .githooks"
+  },
+  "devDependencies": {
+    "@lvbt/cli": "link:../repository-tooling/packages/cli",
+    "@lvbt/prettier-config": "link:../repository-tooling/packages/prettier-config",
+    "prettier": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:"
+  },
   "packageManager": "pnpm@11.15.1",
   "engines": {
     "node": ">=24"
-  },
-  "scripts": {
-    "bootstrap": "lvbt-repository-tooling bootstrap",
-    "preflight": "lvbt-repository-tooling preflight",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
-    "check:fix": "pnpm format && pnpm lint:fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "prepare": "git config --local core.hooksPath .githooks",
-    "build": "tsc -p tsconfig.build.json"
-  },
-  "devDependencies": {
-    "@eslint/js": "catalog:",
-    "@lvbt/eslint-config": "link:../repository-tooling/packages/eslint-config",
-    "@lvbt/prettier-config": "link:../repository-tooling/packages/prettier-config",
-    "@lvbt/repository-tooling": "link:../repository-tooling/packages/repository-tooling",
-    "@lvbt/tsconfig": "link:../repository-tooling/packages/tsconfig",
-    "@lvbt/vitest-config": "link:../repository-tooling/packages/vitest-config",
-    "@types/node": "catalog:",
-    "eslint": "catalog:",
-    "eslint-config-prettier": "catalog:",
-    "prettier": "catalog:",
-    "typescript": "catalog:",
-    "typescript-eslint": "catalog:",
-    "vitest": "catalog:"
   }
 }

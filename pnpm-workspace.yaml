@@ -1,12 +1,11 @@
 packages:
   - 'apps/*'
   - 'packages/*'
-  - 'tools/*'
 
-# The organization version baseline, written by @lvbt/repository-tooling.
-# Every LVBT repository carries the same catalog, so a package declares
-# "catalog:" and two repositories cannot drift onto different versions of one
-# tool without it showing up as a change to this file.
+# The organization version baseline. Every LVBT repository carries this same
+# catalog, so a package declares "catalog:" and two repositories cannot drift
+# onto different versions of one tool without it showing up as a change here.
+# Renovate keeps it current.
 catalog:
   '@astrojs/check': 0.9.10
   '@astrojs/sitemap': 3.7.2
@@ -23,6 +22,7 @@ catalog:
   eslint: 10.9.1
   eslint-config-prettier: 10.1.8
   eslint-plugin-react-hooks: 7.1.1
+  eslint-plugin-turbo: 2.10.12
   globals: 17.12.0
   hono: 4.6.14
   markdownlint-cli2: 0.18.1

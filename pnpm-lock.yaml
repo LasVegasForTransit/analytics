@@ -34,16 +34,21 @@ catalogs:
       specifier: 4.1.11
       version: 4.1.11
 
+overrides:
+  sharp: 0.35.4
+  smol-toml: 1.8.0
+  svgo: 4.1.0
+
 importers:
 
   .:
     devDependencies:
       '@lvbt/cli':
-        specifier: github:LasVegasForTransit/repository-tooling#v0.2.3&path:/packages/cli
-        version: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/cli
+        specifier: github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/cli
+        version: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/cli
       '@lvbt/prettier-config':
-        specifier: github:LasVegasForTransit/repository-tooling#v0.2.3&path:/packages/prettier-config
-        version: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/prettier-config(prettier@3.9.6)
+        specifier: github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/prettier-config
+        version: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/prettier-config(prettier@3.9.6)
       lint-staged:
         specifier: 'catalog:'
         version: 17.4.1
@@ -66,14 +71,14 @@ importers:
   packages/example:
     devDependencies:
       '@lvbt/eslint-config':
-        specifier: github:LasVegasForTransit/repository-tooling#v0.2.3&path:/packages/eslint-config
-        version: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/eslint-config(eslint@10.9.1)(turbo@2.10.12)(typescript@6.0.3)
+        specifier: github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/eslint-config
+        version: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/eslint-config(eslint@10.9.1)(turbo@2.10.12)(typescript@6.0.3)
       '@lvbt/typescript-config':
-        specifier: github:LasVegasForTransit/repository-tooling#v0.2.3&path:/packages/typescript-config
-        version: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/typescript-config
+        specifier: github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/typescript-config
+        version: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/typescript-config
       '@lvbt/vitest-config':
-        specifier: github:LasVegasForTransit/repository-tooling#v0.2.3&path:/packages/vitest-config
-        version: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/vitest-config(vitest@4.1.11(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(yaml@2.9.0)))
+        specifier: github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/vitest-config
+        version: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/vitest-config(vitest@4.1.11(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(yaml@2.9.0)))
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.3
@@ -237,32 +242,32 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@lvbt/cli@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/cli':
-    resolution: {gitHosted: true, path: /packages/cli, tarball: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a}
-    version: 0.2.0
+  '@lvbt/cli@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/cli':
+    resolution: {gitHosted: true, path: /packages/cli, tarball: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa}
+    version: 0.2.7
     engines: {node: '>=24'}
     hasBin: true
 
-  '@lvbt/eslint-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/eslint-config':
-    resolution: {gitHosted: true, path: /packages/eslint-config, tarball: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a}
-    version: 0.2.0
+  '@lvbt/eslint-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/eslint-config':
+    resolution: {gitHosted: true, path: /packages/eslint-config, tarball: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa}
+    version: 0.2.7
     peerDependencies:
       eslint: '>=10'
       typescript: '>=5.9'
 
-  '@lvbt/prettier-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/prettier-config':
-    resolution: {gitHosted: true, path: /packages/prettier-config, tarball: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a}
-    version: 0.2.0
+  '@lvbt/prettier-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/prettier-config':
+    resolution: {gitHosted: true, path: /packages/prettier-config, tarball: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa}
+    version: 0.2.7
     peerDependencies:
       prettier: '>=3'
 
-  '@lvbt/typescript-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/typescript-config':
-    resolution: {gitHosted: true, path: /packages/typescript-config, tarball: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a}
-    version: 0.2.0
+  '@lvbt/typescript-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/typescript-config':
+    resolution: {gitHosted: true, path: /packages/typescript-config, tarball: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa}
+    version: 0.2.7
 
-  '@lvbt/vitest-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/vitest-config':
-    resolution: {gitHosted: true, path: /packages/vitest-config, tarball: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a}
-    version: 0.2.0
+  '@lvbt/vitest-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/vitest-config':
+    resolution: {gitHosted: true, integrity: sha512-M6M3mzTrNOzG73DvDUnzfqq/8Wbo7m+Uds+RNy4O/59fVqcYrW/3DugL3g3jRNdTiqOgwAf53pGWdTdcpDD0Uw==, path: /packages/vitest-config, tarball: https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa}
+    version: 0.2.7
     peerDependencies:
       vitest: '>=4'
 
@@ -1249,8 +1254,8 @@ packages:
     resolution: {integrity: sha512-ZA6oR3T/pEyuqwMgAKT0/hAv8oAXckzbkmR0UkUosQ+Mc4RxGoJkRmwHgHufaenlyAgE1Mxgpdcrf75y6XcnDg==}
     engines: {node: '>=14.16'}
 
-  smol-toml@1.7.0:
-    resolution: {integrity: sha512-aqVvWoyO21L23mb+drl4RmMXbf6N7FdHjAhTRA9ZBL7apWBgfWC16KjrASI+1p9GAroljyMHj6fK67i0UiTNvQ==}
+  smol-toml@1.8.0:
+    resolution: {integrity: sha512-kCZr2V3ch9i00x8zXRhjUNVcjG9ijES5dDudkXvUVCT5QlJNQWElSJdZqyPemffHoLNUYwOcou0Fy+ojN0uHSQ==}
     engines: {node: '>= 18'}
 
   source-map-js@1.2.1:
@@ -1635,9 +1640,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@lvbt/cli@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/cli': {}
+  '@lvbt/cli@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/cli': {}
 
-  '@lvbt/eslint-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/eslint-config(eslint@10.9.1)(turbo@2.10.12)(typescript@6.0.3)':
+  '@lvbt/eslint-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/eslint-config(eslint@10.9.1)(turbo@2.10.12)(typescript@6.0.3)':
     dependencies:
       '@eslint-community/eslint-plugin-eslint-comments': 4.7.2(eslint@10.9.1)
       '@eslint/js': 10.0.1(eslint@10.9.1)
@@ -1653,13 +1658,13 @@ snapshots:
       - supports-color
       - turbo
 
-  '@lvbt/prettier-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/prettier-config(prettier@3.9.6)':
+  '@lvbt/prettier-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/prettier-config(prettier@3.9.6)':
     dependencies:
       prettier: 3.9.6
 
-  '@lvbt/typescript-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/typescript-config': {}
+  '@lvbt/typescript-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/typescript-config': {}
 
-  '@lvbt/vitest-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/9bb6856aed854448ed664455206ec2fcd67eb44a#path:/packages/vitest-config(vitest@4.1.11(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(yaml@2.9.0)))':
+  '@lvbt/vitest-config@https://codeload.github.com/LasVegasForTransit/repository-tooling/tar.gz/6f34bbba529a8ee53badbe6a1696658a0e0411aa#path:/packages/vitest-config(vitest@4.1.11(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(yaml@2.9.0)))':
     dependencies:
       vitest: 4.1.11(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(yaml@2.9.0))
 
@@ -2344,7 +2349,7 @@ snapshots:
       markdownlint: 0.41.1
       markdownlint-cli2-formatter-default: 0.0.6(markdownlint-cli2@0.23.2)
       micromatch: 4.0.8
-      smol-toml: 1.7.0
+      smol-toml: 1.8.0
     transitivePeerDependencies:
       - supports-color
 
@@ -2675,7 +2680,7 @@ snapshots:
 
   slash@5.1.0: {}
 
-  smol-toml@1.7.0: {}
+  smol-toml@1.8.0: {}
 
   source-map-js@1.2.1: {}
 

@@ -38,7 +38,8 @@
   },
   "files": [
     "astro",
-    "dist"
+    "dist",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsdown && tsdown --config tsdown.client.config.ts",

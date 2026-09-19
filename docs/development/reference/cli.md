@@ -11,11 +11,13 @@ pnpm exec lvbt-analytics verify https://labs.lasvegasfortransit.org \
   --expect present
 ```
 
-The verifier opens the page in Chromium and observes requests to the Cloudflare beacon and LVBT
-collector. This exercises the browser gate instead of looking for dormant strings in a bundle.
-`--expect absent` proves a preview or archive sends neither kind of request. A navigation failure or
-mismatched expectation exits nonzero. The consuming repository supplies `@playwright/test` and its
-Chromium browser.
+The verifier opens the page in Chromium and independently observes the Cloudflare script download,
+an actual Cloudflare Web Analytics request, and any LVBT collector requests. It also verifies the
+site declared by the deployed client and rejects collector requests attributed to another site. This
+exercises the browser gate instead of looking for dormant strings in a bundle. `--expect absent`
+proves a preview or archive sends none of those requests. A navigation failure or mismatched
+expectation exits nonzero. The consuming repository supplies `@playwright/test` and its Chromium
+browser.
 
 ## CSP checks
 

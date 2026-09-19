@@ -24,10 +24,10 @@ const analytics = init({
 while preserving allowlisted conversion events. `spa` defaults to `true`; `clicks` defaults to
 `true`.
 
-Configuring `exclude` or `noPageviews` disables Cloudflare's automatic soft-navigation tracking.
-Cloudflare Web Analytics does not expose a per-route SPA filter, so enabling it would send pageviews
-for excluded paths. Full page loads on allowed paths remain measured, and custom events recheck
-`exclude` against the current path before every send.
+Cloudflare's automatic soft-navigation tracking remains enabled when `exclude` or `noPageviews` is
+configured. The client filters Cloudflare Web Analytics requests against those rules, preserving
+pageviews for allowed routes while suppressing pageviews for matching initial and soft-navigation
+paths. Custom events recheck `exclude` against the current path before every send.
 
 The returned handle contains `enabled`, an optional gate `reason`, and `track(name, props)`. Calling
 `init` again returns the first handle and does not install another beacon or click listener.

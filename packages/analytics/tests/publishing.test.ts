@@ -17,8 +17,8 @@ test('publishes from the canonical repository through npm trusted publishing', a
     type: 'git',
     url: 'git+https://github.com/LasVegasForTransit/analytics.git',
   });
-  expect(workflow).toContain('npm publish --access public');
-  expect(workflow).not.toContain('pnpm publish');
+  expect(workflow).toContain('pnpm publish --access public --no-git-checks');
+  expect(workflow).not.toMatch(/(^|\s)npm publish/);
   expect(workflow).not.toContain('NODE_AUTH_TOKEN');
   expect(packageJson.version).toBe('0.1.0');
   expect(VERSION).toBe(packageJson.version);

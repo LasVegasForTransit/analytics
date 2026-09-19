@@ -1,0 +1,16 @@
+{
+  "extends": "@lvbt/typescript-config/browser.json",
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "astro",
+    "fixtures",
+    "src",
+    "tests",
+    "tsdown.config.ts",
+    "tsdown.client.config.ts",
+    "playwright.config.ts",
+    "vitest.config.ts"
+  ]
+}

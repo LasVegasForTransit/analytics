@@ -1,0 +1,143 @@
+name: Analytics weekly report
+
+on:
+  schedule:
+    - cron: '0 14 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    name: Verify production and update report
+    if: vars.LVBT_ANALYTICS_LIVE == '1' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node + pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Build
+        run: pnpm build
+
+      - name: Install Chromium
+        run: pnpm --filter @lvbt/analytics exec playwright install --with-deps chromium
+
+      - name: Verify public sites
+        run: |
+          node packages/analytics/dist/cli/index.mjs verify https://lasvegasfortransit.org \
+            --site lasvegasfortransit.org --expect present
+          node packages/analytics/dist/cli/index.mjs verify https://labs.lasvegasfortransit.org \
+            --site labs.lasvegasfortransit.org --expect present
+          node packages/analytics/dist/cli/index.mjs verify https://fund.lasvegasfortransit.org \
+            --site fund.lasvegasfortransit.org --expect present
+          node packages/analytics/dist/cli/index.mjs verify https://map.lasvegasfortransit.org \
+            --site map.lasvegasfortransit.org --expect present
+
+      - name: Build reports
+        run: |
+          pnpm report --days 7 > report-7.md
+          pnpm report --days 30 > report-30.md
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_ANALYTICS_READ_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_READ_TOKEN }}
+
+      - name: Update stable report issue
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('node:fs');
+            const title = 'LVBT analytics weekly report';
+            const body = [
+              `Updated ${new Date().toISOString().slice(0, 10)}.`,
+              '',
+              fs.readFileSync('report-7.md', 'utf8'),
+              fs.readFileSync('report-30.md', 'utf8'),
+              '',
+              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            ].join('\n');
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'analytics-report',
+              state: 'open',
+              per_page: 100,
+            });
+            const existing = issues.find((issue) => issue.title === title && !issue.pull_request);
+            const issue = existing
+              ? await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existing.number,
+                  body,
+                })
+              : await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title,
+                  body,
+                  labels: ['analytics-report'],
+                });
+            const pinState = await github.graphql(
+              `query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  issue(number: $number) { id isPinned }
+                }
+              }`,
+              { owner: context.repo.owner, repo: context.repo.repo, number: issue.data.number },
+            );
+            if (!pinState.repository.issue.isPinned) {
+              await github.graphql(
+                `mutation($id: ID!) { pinIssue(input: { issueId: $id }) { issue { id } } }`,
+                { id: pinState.repository.issue.id },
+              );
+            }
+
+  notify:
+    name: Update maintenance issue on failure
+    needs: report
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Update stable maintenance issue
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const title = 'Analytics weekly check needs attention';
+            const body = [
+              `The check failed on ${new Date().toISOString().slice(0, 10)}.`,
+              '',
+              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            ].join('\n');
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'analytics,maintenance',
+              state: 'open',
+              per_page: 100,
+            });
+            const existing = issues.find((issue) => issue.title === title && !issue.pull_request);
+            if (existing) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['analytics', 'maintenance'],
+              });
+            }

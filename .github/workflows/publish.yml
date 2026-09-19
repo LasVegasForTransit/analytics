@@ -1,0 +1,45 @@
+name: Publish package
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node + pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Install Chromium
+        run: pnpm --filter @lvbt/analytics exec playwright install --with-deps chromium
+
+      - name: Validate
+        run: pnpm check
+
+      - name: Configure npm trusted publishing
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          registry-url: https://registry.npmjs.org
+
+      - name: Confirm release version
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./packages/analytics/package.json').version")"
+          test "v${PACKAGE_VERSION}" = "${GITHUB_REF_NAME}"
+
+      - name: Publish with provenance
+        working-directory: packages/analytics
+        run: npm publish --access public

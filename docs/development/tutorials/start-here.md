@@ -1,80 +1,47 @@
-# Start here
+# Set up a contributor checkout
 
-This tutorial takes you from a fresh clone to a passing check and a first commit. It exists so that
-your first hour is spent on the project, not on tooling. You need to be able to run a command in a
-terminal; nothing else is assumed.
+This tutorial prepares a local checkout, runs the same validation as CI, and exercises the client
+and collector tests. Node.js 24.20, git, and an authenticated GitHub CLI are required.
 
-## Before you start
-
-- Node.js 24.20 or newer on the 24 line (the current long-term support release). Check with
-  `node --version`; install from [nodejs.org](https://nodejs.org) if needed.
-- git, and a GitHub account with access to this repository.
-- The GitHub CLI (`gh`), signed in with `gh auth login`. Issues and pull requests are created
-  through it.
-
-pnpm (the package manager, see the [glossary](../reference/glossary.md#pnpm)) installs itself from
-the version pinned in `package.json` the first time you run it, through Corepack. If
-`pnpm --version` fails, run `corepack enable` once.
-
-## 1. Clone and bootstrap
+## Bootstrap the repository
 
 ```bash
-git clone git@github.com:LasVegasForTransit/<this-repository>.git
-cd <this-repository>
+git clone git@github.com:LasVegasForTransit/analytics.git
+cd analytics
+corepack enable
 pnpm bootstrap
 ```
 
-`bootstrap` installs dependencies, points git at the repository's hooks, and runs preflight, which
-prints one line per check:
+Bootstrap installs the pinned pnpm version, dependencies, repository hooks, and preflight checks. A
+failing preflight item prints the command that repairs it.
 
-```text
-  ok    Node.js        24.20.0 satisfies ^24.20.0
-  ok    pnpm           11.25.0 matches packageManager
-  ok    dependencies   node_modules is present
-  ok    git hooks      core.hooksPath is .githooks
-  ok    commit scopes  .lvbt/commit-scopes.txt is present
-  ok    GitHub CLI     gh is installed and signed in
-  ok    Cloudflare     no wrangler config; nothing to deploy from here
-preflight: all 7 checks passed
-```
-
-A failing line prints the command that fixes it. Run it, then `pnpm preflight` again.
-
-## 2. Run the check
+## Run the complete check
 
 ```bash
 pnpm check
 ```
 
-This is the same command CI runs: formatting, documentation links, the repository-shape rules, then
-lint, typecheck, and tests for every package. On a fresh clone it passes. When it fails, the output
-names the package and file; `pnpm check:fix` repairs everything a machine can (formatting and
-auto-fixable lint findings).
+The check formats and lints the repository, validates documentation and repository structure,
+typechecks every workspace, runs browser-unit and real-workerd tests, builds the package, checks its
+published exports, and performs a Wrangler dry run.
 
-## 3. Make a change and commit it
-
-Edit a file, then:
+Use the focused commands while changing one boundary:
 
 ```bash
-git add <the file>
-git commit
+pnpm --filter @lvbt/analytics test
+pnpm --filter @lvbt/analytics-collector test
+pnpm --filter @lvbt/analytics-report test
 ```
 
-The commit hook checks the message. Subjects look like `type(scope): description` where `type` is
-one of `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`, `style`, `revert`,
-and the optional `scope` is one of the boundaries listed in `.lvbt/commit-scopes.txt`. A `feat` or
-`fix` commit also needs a body that says what changed for a person using the product and why. The
-hook tells you exactly what to change when it rejects a message.
+`pnpm check:fix` applies formatting and safe lint fixes. Run `pnpm check` again after it finishes.
 
-## 4. Open a pull request
+## Make a contribution
 
-Push your branch and open the pull request with the GitHub CLI or the web UI. The pull request
-template asks for a TL;DR, an overview of changes, and follow-ups. CI runs `pnpm check` as the
-`Validate` status, and a maintainer reviews.
+Choose a commit scope from `.lvbt/commit-scopes.txt`: `client`, `collector`, `report`, `docs`, `ci`,
+or `dx`. A change that crosses boundaries omits the scope.
 
-## Where to go next
+Create pull requests through the repository contribution helper described in `AGENTS.md`. The
+required GitHub status is `Validate`, which runs the same `pnpm check` command used locally.
 
-- `pnpm dev` starts every app with a `dev` script; `pnpm build` builds every package.
-- The [glossary](../reference/glossary.md) defines every tool and acronym used here.
-- `AGENTS.md` at the repository root is the contract for coding agents; it is a good summary of the
-  rules for people too.
+No Cloudflare credential is needed for ordinary development. Deployment and reporting commands use
+maintainer-scoped credentials only during operational work.

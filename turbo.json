@@ -1,7 +1,14 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
-  "globalEnv": ["CI"],
+  "globalEnv": [
+    "CI",
+    "LVBT_REQUIRE_ANALYTICS",
+    "PUBLIC_LVBT_ANALYTICS_COLLECTOR",
+    "PUBLIC_LVBT_CWA_TOKEN",
+    "CLOUDFLARE_ACCOUNT_ID",
+    "CLOUDFLARE_ANALYTICS_READ_TOKEN"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -18,7 +25,7 @@
       "dependsOn": ["^build"]
     },
     "validate": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["build"]
     },
     "test:e2e": {
       "dependsOn": ["build"],

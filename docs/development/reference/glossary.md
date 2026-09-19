@@ -1,51 +1,34 @@
 # Glossary
 
-Terms used across LVBT repositories, defined once. Docs link here the first time a term appears.
+**Analytics Engine** is Cloudflare's append-oriented dataset for custom measurements. The LVBT
+collector writes allowlisted events to the `lvbt_events` dataset.
 
-## Tools
+**Beacon** is the Cloudflare Web Analytics browser module. It records aggregate page use and real
+user performance.
 
-<a id="pnpm"></a>**pnpm**: the package manager every LVBT repository uses. It installs dependencies
-(`pnpm install`) and runs scripts (`pnpm check`). The version is pinned in `package.json` under
-`packageManager`.
+**Content Security Policy (CSP)** is the response header that restricts scripts and network
+destinations. Analytics adds two narrowly scoped external origins.
 
-<a id="turborepo"></a>**Turborepo**: runs a script (`lint`, `test`, `build`) in every workspace
-package in the right order and caches the results. `pnpm check` uses it; you rarely call `turbo`
-directly.
+**Core Web Vitals** are browser performance measurements for loading, responsiveness, and visual
+stability.
 
-<a id="workspace"></a>**Workspace**: a repository holding several packages, listed in
-`pnpm-workspace.yaml`. Applications live under `apps/`, libraries under `packages/`.
+**Do Not Track (DNT)** is the browser request signal `DNT: 1`. LVBT treats it as an analytics
+opt-out.
 
-<a id="catalog"></a>**Catalog**: the `catalog:` block in `pnpm-workspace.yaml` that pins one version
-of every tool for the whole organization. A package writes `"catalog:"` as a version and gets the
-pinned one.
+**Global Privacy Control (GPC)** is the browser privacy signal exposed as
+`navigator.globalPrivacyControl` and `Sec-GPC: 1`. LVBT treats it as an analytics opt-out.
 
-<a id="eslint"></a>**ESLint**: finds likely bugs and enforces code rules. The rules come from
-`@lvbt/eslint-config`.
+**Production gate** is the ordered check that disables analytics without a token, under a privacy
+signal, in a frame, on excluded paths, on local and preview hosts, and on the wrong hostname.
 
-<a id="prettier"></a>**Prettier**: formats code the same way for everyone, so formatting is never
-discussed in review. The settings come from `@lvbt/prettier-config`.
+**Real User Monitoring (RUM)** measures performance in actual browsers rather than a synthetic test.
+Cloudflare Web Analytics supplies LVBT's RUM data.
 
-<a id="vitest"></a>**Vitest**: runs unit tests under `tests/`.
+**UTM parameters** are conventional campaign query parameters such as `utm_source`. Cloudflare Web
+Analytics handles them; custom events do not copy them.
 
-<a id="playwright"></a>**Playwright**: runs end-to-end tests in a real browser, under `tests/e2e/`.
+**Wrangler** is Cloudflare's Worker development and deployment command. The collector build runs a
+Wrangler deployment dry run.
 
-<a id="wrangler"></a>**Wrangler**: Cloudflare's command line for deploying Workers.
-`pnpm run deploy` calls it.
-
-<a id="gh"></a>**gh**: the GitHub command line. Signing in with `gh auth login` lets the
-repository's helper create issues and pull requests for you.
-
-## Terms
-
-<a id="conventional-commit"></a>**Conventional commit**: a commit subject shaped
-`type(scope): description`, for example `fix(worker): reject expired share links`. The hook enforces
-it.
-
-<a id="scope"></a>**Scope**: the part of a commit subject in parentheses, naming which durable
-boundary of the repository the change belongs to. The allowed list is `.lvbt/commit-scopes.txt`.
-
-<a id="ci"></a>**CI**: continuous integration, the automation that runs `pnpm check` on every pull
-request. The required status is named `Validate`.
-
-<a id="preflight"></a>**Preflight**: `pnpm preflight`, the check that your machine can build and
-deploy this repository, with a fix printed for anything missing.
+**pnpm** is the package manager pinned by the repository. **Turborepo** orders and caches scripts
+across the client, collector, and report workspaces.

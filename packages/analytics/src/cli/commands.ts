@@ -40,12 +40,14 @@ export async function writeClient(path: string) {
 }
 
 interface VerifyRoute {
+  continue(): Promise<unknown>;
   fulfill(options: { body?: string; contentType?: string; status: number }): Promise<unknown>;
-  request(): { url(): string };
+  request(): { postData(): string | null; url(): string };
 }
 
 export interface VerifyPage {
-  goto(url: string, options?: { waitUntil?: 'domcontentloaded' }): Promise<unknown>;
+  getAttribute(selector: string, name: string): Promise<string | null>;
+  goto(url: string, options?: { waitUntil?: 'load' }): Promise<unknown>;
   route(pattern: string, handler: (route: VerifyRoute) => Promise<unknown>): Promise<unknown>;
   waitForTimeout(milliseconds: number): Promise<unknown>;
 }
@@ -79,26 +81,61 @@ export async function verifyDeployment(
   const pageUrl = new URL(url);
   if (expect === 'present' && pageUrl.hostname !== site && pageUrl.hostname !== `www.${site}`)
     throw new Error(`${pageUrl.hostname} does not match expected site ${site}.`);
+  const scriptRequests: string[] = [];
   const beaconRequests: string[] = [];
   const eventRequests: string[] = [];
+  const eventSites: string[] = [];
   await withPage(async (page) => {
     await page.route('https://static.cloudflareinsights.com/**', async (route) => {
-      beaconRequests.push(route.request().url());
-      return route.fulfill({ body: 'export {};', contentType: 'text/javascript', status: 200 });
+      scriptRequests.push(route.request().url());
+      return route.continue();
     });
-    await page.route('https://events.lasvegasfortransit.org/**', async (route) => {
-      eventRequests.push(route.request().url());
+    await page.route('https://cloudflareinsights.com/**', async (route) => {
+      beaconRequests.push(route.request().url());
       return route.fulfill({ status: 204 });
     });
-    await page.goto(pageUrl.href, { waitUntil: 'domcontentloaded' });
+    await page.route('https://events.lasvegasfortransit.org/**', async (route) => {
+      const request = route.request();
+      eventRequests.push(request.url());
+      const body = request.postData();
+      if (body) {
+        try {
+          const payload = JSON.parse(body) as { site?: unknown };
+          if (typeof payload.site === 'string') eventSites.push(payload.site);
+        } catch {
+          // The collector owns full payload validation; deployment verification only checks site.
+        }
+      }
+      return route.fulfill({ status: 204 });
+    });
+    await page.goto(pageUrl.href, { waitUntil: 'load' });
     await page.waitForTimeout(500);
+    if (expect === 'present') {
+      const configuredSite = await page.getAttribute('[data-lvbt-analytics]', 'data-lvbt-site');
+      if (configuredSite !== site)
+        throw new Error(
+          `Expected analytics site ${site} at ${pageUrl.href}; the deployed client declared ${configuredSite ?? 'no site'}.`,
+        );
+    }
   });
+  const wrongSite = eventSites.find((eventSite) => eventSite !== site);
+  if (wrongSite)
+    throw new Error(
+      `Expected collector requests for ${site} at ${pageUrl.href}; observed a collector request for ${wrongSite}.`,
+    );
+  if (expect === 'present' && scriptRequests.length !== 1)
+    throw new Error(
+      `Expected analytics to be present for ${site} at ${pageUrl.href}; the browser made ${scriptRequests.length} Cloudflare script requests.`,
+    );
   if (expect === 'present' && beaconRequests.length !== 1)
     throw new Error(
-      `Expected analytics to be present for ${site} at ${pageUrl.href}; the browser made ${beaconRequests.length} Cloudflare beacon requests.`,
+      `Expected analytics to be present for ${site} at ${pageUrl.href}; the browser made ${beaconRequests.length} Cloudflare Web Analytics beacon requests.`,
     );
-  if (expect === 'absent' && beaconRequests.length + eventRequests.length !== 0)
+  if (
+    expect === 'absent' &&
+    scriptRequests.length + beaconRequests.length + eventRequests.length !== 0
+  )
     throw new Error(
-      `Expected analytics to be absent for ${site} at ${pageUrl.href}; the browser made ${beaconRequests.length} Cloudflare beacon requests and ${eventRequests.length} collector requests.`,
+      `Expected analytics to be absent for ${site} at ${pageUrl.href}; the browser made ${scriptRequests.length} Cloudflare script requests, ${beaconRequests.length} Cloudflare Web Analytics beacon requests, and ${eventRequests.length} collector requests.`,
     );
 }

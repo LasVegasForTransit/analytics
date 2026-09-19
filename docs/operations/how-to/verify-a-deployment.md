@@ -1,7 +1,8 @@
 # Verify a deployment
 
-Verification checks the page, bundled client, security policy, collector, privacy gate, and one real
-event. A successful page response alone does not prove analytics works.
+Verification checks the page, bundled client, Cloudflare Web Analytics request, configured site,
+security policy, collector, privacy gate, and one real event. A successful page response alone does
+not prove analytics works.
 
 For production:
 

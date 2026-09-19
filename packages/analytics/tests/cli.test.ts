@@ -33,22 +33,25 @@ test('keeps the committed event reference synchronized with the runtime allowlis
   expect(normalizeTable(committed ?? '')).toBe(normalizeTable(eventsMarkdown()));
 });
 
-function pageThatRequests(...requestedUrls: string[]): VerifyPage {
+function pageThatRequests(...requests: Array<string | { body: string; url: string }>): VerifyPage {
   const routes: Array<{
     pattern: string;
     handler: (route: {
+      continue(): Promise<void>;
       fulfill(options: { body?: string; contentType?: string; status: number }): Promise<void>;
-      request(): { url(): string };
+      request(): { postData(): string | null; url(): string };
     }) => Promise<unknown>;
   }> = [];
   const goto: VerifyPage['goto'] = async () => {
-    for (const url of requestedUrls) {
+    for (const request of requests) {
+      const { body, url } = typeof request === 'string' ? { body: null, url: request } : request;
       const route = routes.find(({ pattern }) =>
         pattern.endsWith('/**') ? url.startsWith(pattern.slice(0, -2)) : url === pattern,
       );
       await route?.handler({
+        continue: () => Promise.resolve(),
         fulfill: () => Promise.resolve(),
-        request: () => ({ url: () => url }),
+        request: () => ({ postData: () => body, url: () => url }),
       });
     }
   };
@@ -57,7 +60,10 @@ function pageThatRequests(...requestedUrls: string[]): VerifyPage {
     return Promise.resolve();
   };
   const waitForTimeout: VerifyPage['waitForTimeout'] = () => Promise.resolve();
+  const getAttribute: VerifyPage['getAttribute'] = (_selector, name) =>
+    Promise.resolve(name === 'data-lvbt-site' ? 'labs.lasvegasfortransit.org' : null);
   return {
+    getAttribute: vi.fn(getAttribute),
     goto: vi.fn(goto),
     route: vi.fn(route),
     waitForTimeout: vi.fn(waitForTimeout),
@@ -66,7 +72,12 @@ function pageThatRequests(...requestedUrls: string[]): VerifyPage {
 
 test('verifies analytics from browser-observed requests instead of bundle text', async () => {
   const withPage = (run: (page: VerifyPage) => Promise<void>) =>
-    run(pageThatRequests('https://static.cloudflareinsights.com/beacon.min.js'));
+    run(
+      pageThatRequests(
+        'https://static.cloudflareinsights.com/beacon.min.js',
+        'https://cloudflareinsights.com/cdn-cgi/rum',
+      ),
+    );
 
   await expect(
     verifyDeployment(
@@ -88,7 +99,21 @@ test('fails when the built client exists but the runtime gate sends no request',
       'present',
       withPage,
     ),
-  ).rejects.toThrow('browser made 0 Cloudflare beacon requests');
+  ).rejects.toThrow('browser made 0 Cloudflare script requests');
+});
+
+test('does not accept the script download as proof that Web Analytics sent a beacon', async () => {
+  const withPage = (run: (page: VerifyPage) => Promise<void>) =>
+    run(pageThatRequests('https://static.cloudflareinsights.com/beacon.min.js'));
+
+  await expect(
+    verifyDeployment(
+      'https://labs.lasvegasfortransit.org',
+      'labs.lasvegasfortransit.org',
+      'present',
+      withPage,
+    ),
+  ).rejects.toThrow('browser made 0 Cloudflare Web Analytics beacon requests');
 });
 
 test('does not accept a collector event as proof that Web Analytics loaded', async () => {
@@ -102,7 +127,34 @@ test('does not accept a collector event as proof that Web Analytics loaded', asy
       'present',
       withPage,
     ),
-  ).rejects.toThrow('browser made 0 Cloudflare beacon requests');
+  ).rejects.toThrow('browser made 0 Cloudflare script requests');
+});
+
+test('rejects collector events attributed to a different production site', async () => {
+  const withPage = (run: (page: VerifyPage) => Promise<void>) =>
+    run(
+      pageThatRequests(
+        'https://static.cloudflareinsights.com/beacon.min.js',
+        'https://cloudflareinsights.com/cdn-cgi/rum',
+        {
+          body: JSON.stringify({
+            name: 'join_click',
+            props: { placement: 'header' },
+            site: 'map.lasvegasfortransit.org',
+          }),
+          url: 'https://events.lasvegasfortransit.org/e',
+        },
+      ),
+    );
+
+  await expect(
+    verifyDeployment(
+      'https://labs.lasvegasfortransit.org',
+      'labs.lasvegasfortransit.org',
+      'present',
+      withPage,
+    ),
+  ).rejects.toThrow('collector request for map.lasvegasfortransit.org');
 });
 
 test('requires the expected site to match a production deployment hostname', async () => {

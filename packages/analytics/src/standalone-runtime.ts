@@ -86,6 +86,7 @@ export function startStandalone(
     beacon.src = 'https://static.cloudflareinsights.com/beacon.min.js';
     beacon.dataset.cfBeacon = JSON.stringify({ token, spa: script.dataset.lvbtSpa !== 'false' });
     beacon.dataset.lvbtAnalytics = '';
+    beacon.dataset.lvbtSite = site;
     document.head.append(beacon);
   }
   if (script.dataset.lvbtClicks !== 'false')

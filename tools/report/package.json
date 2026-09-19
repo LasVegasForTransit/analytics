@@ -1,0 +1,23 @@
+{
+  "name": "@lvbt/analytics-report",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "validate": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@lvbt/eslint-config": "github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/eslint-config",
+    "@lvbt/typescript-config": "github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/typescript-config",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "tsx": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "name": "@lvbt/analytics",
+  "version": "0.1.0",
+  "description": "Privacy-preserving analytics for Las Vegas for Better Transit web properties.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LasVegasForTransit/analytics.git",
+    "directory": "packages/analytics"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.mts",
+      "import": "./dist/react.mjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.mts",
+      "import": "./dist/client.mjs"
+    },
+    "./testing": {
+      "types": "./dist/playwright.d.mts",
+      "import": "./dist/playwright.mjs"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.mts",
+      "import": "./dist/node/index.mjs"
+    },
+    "./astro": "./astro/index.ts"
+  },
+  "bin": {
+    "lvbt-analytics": "dist/cli/index.mjs"
+  },
+  "files": [
+    "astro",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown && tsdown --config tsdown.client.config.ts",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "validate": "publint && node scripts/smoke-package.mjs && node scripts/check-size.mjs"
+  },
+  "peerDependencies": {
+    "@playwright/test": ">=1.62 <2",
+    "astro": ">=6 <8",
+    "react": ">=18 <20",
+    "vite": ">=6 <9"
+  },
+  "peerDependenciesMeta": {
+    "@playwright/test": {
+      "optional": true
+    },
+    "astro": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@lvbt/eslint-config": "github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/eslint-config",
+    "@lvbt/typescript-config": "github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/typescript-config",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "astro": "catalog:",
+    "eslint": "catalog:",
+    "happy-dom": "catalog:",
+    "publint": "catalog:",
+    "react": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

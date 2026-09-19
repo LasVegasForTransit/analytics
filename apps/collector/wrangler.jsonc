@@ -1,0 +1,34 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "lvbt-analytics-events",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "events.lasvegasfortransit.org",
+      "custom_domain": true,
+    },
+  ],
+  "analytics_engine_datasets": [
+    {
+      "binding": "EVENTS",
+      "dataset": "lvbt_events",
+    },
+  ],
+  "ratelimits": [
+    {
+      "name": "EVENT_LIMITER",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 30,
+        "period": 60,
+      },
+    },
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
+}

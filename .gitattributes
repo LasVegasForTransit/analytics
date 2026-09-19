@@ -1,0 +1,2 @@
+# Wrangler owns this generated declaration and occasionally emits trailing spaces.
+apps/collector/worker-configuration.d.ts -whitespace

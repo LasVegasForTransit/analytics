@@ -12,6 +12,7 @@ design reasoning.
 ## Complete a task
 
 - [Add a conversion event](development/how-to/add-a-conversion-event.md)
+- [Update the repository standard](development/how-to/update-the-repository-standard.md)
 - [Upgrade consumer repositories](development/how-to/upgrade-consumers.md)
 - [Verify a deployment](operations/how-to/verify-a-deployment.md)
 - [Read an analytics report](operations/how-to/read-a-report.md)

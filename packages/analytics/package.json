@@ -75,8 +75,8 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
-    "@lvbt/eslint-config": "github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/eslint-config",
-    "@lvbt/typescript-config": "github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/typescript-config",
+    "@lvbt/eslint-config": "file:../../.lvbt/web-platform/packages/eslint-config",
+    "@lvbt/typescript-config": "file:../../.lvbt/web-platform/packages/typescript-config",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "astro": "catalog:",

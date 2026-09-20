@@ -10,6 +10,8 @@
   },
   "globs": ["**/*.md"],
   "ignores": [
+    // Versioned upstream repository tooling is verified by standards:check.
+    ".lvbt/web-platform",
     // Playwright output.
     "**/test-results",
     "**/playwright-report",

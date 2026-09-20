@@ -14,9 +14,11 @@
     "test:install": "pnpm --filter @lasvegasfortransit/analytics exec playwright install chromium",
     "test:e2e": "turbo run test:e2e --concurrency=1",
     "report": "tsx tools/report/src/index.ts",
+    "standards:update": "node .lvbt/web-platform/standards/web-platform-cli.ts update",
+    "standards:check": "node .lvbt/web-platform/standards/web-platform-cli.ts check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "pnpm format:check && markdownlint-cli2 && lvbt check && turbo run lint check-types test validate test:e2e --concurrency=1",
+    "check": "pnpm standards:check && pnpm format:check && markdownlint-cli2 && lvbt check && turbo run lint check-types test validate test:e2e --concurrency=1",
     "check:fix": "pnpm format && markdownlint-cli2 --fix && turbo run lint -- --fix",
     "prepare": "git config --local core.hooksPath .githooks 2>/dev/null || true"
   },
@@ -24,8 +26,8 @@
     "*": "prettier --write --ignore-unknown"
   },
   "devDependencies": {
-    "@lvbt/cli": "github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/cli",
-    "@lvbt/prettier-config": "github:LasVegasForTransit/repository-tooling#v0.2.7&path:/packages/prettier-config",
+    "@lvbt/cli": "file:.lvbt/web-platform/packages/cli",
+    "@lvbt/prettier-config": "file:.lvbt/web-platform/packages/prettier-config",
     "lint-staged": "catalog:",
     "markdownlint-cli2": "catalog:",
     "markdownlint-rule-relative-links": "catalog:",

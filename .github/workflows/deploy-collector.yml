@@ -33,13 +33,14 @@ jobs:
         uses: ./.github/actions/setup-node-pnpm
 
       - name: Install Chromium
-        run: pnpm --filter @lvbt/analytics exec playwright install --with-deps chromium
+        run:
+          pnpm --filter @lasvegasfortransit/analytics exec playwright install --with-deps chromium
 
       - name: Validate
         run: pnpm check
 
       - name: Deploy
-        run: pnpm --filter @lvbt/analytics-collector exec wrangler deploy
+        run: pnpm --filter @lasvegasfortransit/analytics-collector exec wrangler deploy
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

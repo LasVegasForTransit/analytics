@@ -42,7 +42,10 @@ test('injects the production client and prevents JavaScript inlining', async () 
     updateConfig,
   } as never);
 
-  expect(injectScript).toHaveBeenCalledWith('page', expect.stringContaining('@lvbt/analytics'));
+  expect(injectScript).toHaveBeenCalledWith(
+    'page',
+    expect.stringContaining('@lasvegasfortransit/analytics'),
+  );
   expect(injectScript).toHaveBeenCalledWith(
     'page',
     expect.stringContaining('labs.lasvegasfortransit.org'),

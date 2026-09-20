@@ -1,5 +1,5 @@
 {
-  "name": "@lvbt/analytics",
+  "name": "@lasvegasfortransit/analytics",
   "version": "0.1.0",
   "description": "Privacy-preserving analytics for Las Vegas for Better Transit web properties.",
   "license": "MIT",
@@ -7,6 +7,10 @@
     "type": "git",
     "url": "git+https://github.com/LasVegasForTransit/analytics.git",
     "directory": "packages/analytics"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
   },
   "type": "module",
   "sideEffects": false,

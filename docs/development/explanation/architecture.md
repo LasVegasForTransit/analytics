@@ -6,9 +6,10 @@ event schema under LVBT control.
 
 ## Data paths
 
-Every production site initializes `@lvbt/analytics` with its hostname and the shared Web Analytics
-token. The client checks privacy signals, environment, path exclusions, and framing before it does
-anything. An enabled client loads Cloudflare's beacon and exposes one typed `track` function.
+Every production site initializes `@lasvegasfortransit/analytics` with its hostname and the shared
+Web Analytics token. The client checks privacy signals, environment, path exclusions, and framing
+before it does anything. An enabled client loads Cloudflare's beacon and exposes one typed `track`
+function.
 
 Pageviews, referrers, UTM attribution, and Core Web Vitals go directly to Cloudflare Web Analytics.
 Allowlisted conversion events go to `events.lasvegasfortransit.org/e` as small `text/plain` JSON

@@ -28,9 +28,9 @@ published exports, and performs a Wrangler dry run.
 Use the focused commands while changing one boundary:
 
 ```bash
-pnpm --filter @lvbt/analytics test
-pnpm --filter @lvbt/analytics-collector test
-pnpm --filter @lvbt/analytics-report test
+pnpm --filter @lasvegasfortransit/analytics test
+pnpm --filter @lasvegasfortransit/analytics-collector test
+pnpm --filter @lasvegasfortransit/analytics-report test
 ```
 
 `pnpm check:fix` applies formatting and safe lint fixes. Run `pnpm check` again after it finishes.

@@ -106,7 +106,7 @@ importers:
 
   apps/collector:
     dependencies:
-      '@lvbt/analytics':
+      '@lasvegasfortransit/analytics':
         specifier: workspace:*
         version: link:../../packages/analytics
       zod:

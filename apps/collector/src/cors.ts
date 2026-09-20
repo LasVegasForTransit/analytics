@@ -1,4 +1,4 @@
-import { EVENTS } from '@lvbt/analytics';
+import { EVENTS } from '@lasvegasfortransit/analytics';
 
 const sites = new Set<string>(Object.values(EVENTS).flatMap((event) => event.sites));
 

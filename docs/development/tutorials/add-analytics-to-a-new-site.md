@@ -9,7 +9,7 @@ hostname.
 Install the package at the organization-approved version:
 
 ```bash
-pnpm add @lvbt/analytics
+pnpm add @lasvegasfortransit/analytics
 ```
 
 Use the production hostname as `site`. Do not invent a product ID or include `https://`.
@@ -17,7 +17,7 @@ Use the production hostname as `site`. Do not invent a product ID or include `ht
 For Astro, add the integration to `astro.config.ts`:
 
 ```ts
-import lvbtAnalytics from '@lvbt/analytics/astro';
+import lvbtAnalytics from '@lasvegasfortransit/analytics/astro';
 
 export default defineConfig({
   integrations: [lvbtAnalytics({ site: 'example.lasvegasfortransit.org' })],
@@ -33,7 +33,7 @@ export default defineConfig({ envPrefix: ['VITE_', 'PUBLIC_'] });
 
 ```ts
 // src/main.tsx
-import { init } from '@lvbt/analytics';
+import { init } from '@lasvegasfortransit/analytics';
 
 init({
   site: 'example.lasvegasfortransit.org',

@@ -13,7 +13,7 @@ export interface LvbtAnalyticsOptions {
 
 export function lvbtAnalytics(options: LvbtAnalyticsOptions): AstroIntegration {
   return {
-    name: '@lvbt/analytics',
+    name: '@lasvegasfortransit/analytics',
     hooks: {
       'astro:config:setup': ({ command, config, injectScript, updateConfig }) => {
         const env = { ...loadEnv(command, fileURLToPath(config.root), ''), ...process.env };
@@ -36,7 +36,7 @@ export function lvbtAnalytics(options: LvbtAnalyticsOptions): AstroIntegration {
         ].join('');
         injectScript(
           'page',
-          `import { init } from '@lvbt/analytics'; const options = ${JSON.stringify({ ...serializable, collector, token })}; ${patternAssignments} init(options);`,
+          `import { init } from '@lasvegasfortransit/analytics'; const options = ${JSON.stringify({ ...serializable, collector, token })}; ${patternAssignments} init(options);`,
         );
         updateConfig({ vite: { build: { assetsInlineLimit: 0 } } });
       },

@@ -1,7 +1,7 @@
 # Client API
 
-`@lvbt/analytics` has no runtime dependencies. The package exposes a browser client, framework
-adapters, browser-test helpers, and a Node helper for static headers.
+`@lasvegasfortransit/analytics` has no runtime dependencies. The package exposes a browser client,
+framework adapters, browser-test helpers, and a Node helper for static headers.
 
 ## `init(options)`
 
@@ -65,23 +65,25 @@ by direct `track` calls.
 
 ## Framework entry points
 
-`@lvbt/analytics/astro` exports `lvbtAnalytics(options)`. It reads the standard environment, injects
-an external page module only when a token exists, and disables JavaScript asset inlining so the site
-CSP remains enforceable.
+`@lasvegasfortransit/analytics/astro` exports `lvbtAnalytics(options)`. It reads the standard
+environment, injects an external page module only when a token exists, and disables JavaScript asset
+inlining so the site CSP remains enforceable.
 
-`@lvbt/analytics/react` exports `Analytics`, `useAnalytics`, and `useTrack`. The provider
-initializes the shared client after mount. Hooks return the disabled no-op handle during server
-rendering and the first client render.
+`@lasvegasfortransit/analytics/react` exports `Analytics`, `useAnalytics`, and `useTrack`. The
+provider initializes the shared client after mount. Hooks return the disabled no-op handle during
+server rendering and the first client render.
 
-`@lvbt/analytics/client` exports `initFromScript`. It reads `data-lvbt-site`, `data-lvbt-token`,
-`data-lvbt-collector`, `data-lvbt-spa`, and `data-lvbt-clicks` from a script element.
+`@lasvegasfortransit/analytics/client` exports `initFromScript`. It reads `data-lvbt-site`,
+`data-lvbt-token`, `data-lvbt-collector`, `data-lvbt-spa`, and `data-lvbt-clicks` from a script
+element.
 
 ## Test and Node entry points
 
-`@lvbt/analytics/testing` exports `captureBeacon(page)`, `captureEvents(page, collector)`, and
-`serveAsProduction(localOrigin, site)`. The capture helpers install Playwright-compatible routes and
-return arrays populated as requests occur. `serveAsProduction` returns the production URL and
-Chromium host-resolver argument needed to exercise the hostname gate against a loopback server.
+`@lasvegasfortransit/analytics/testing` exports `captureBeacon(page)`,
+`captureEvents(page, collector)`, and `serveAsProduction(localOrigin, site)`. The capture helpers
+install Playwright-compatible routes and return arrays populated as requests occur.
+`serveAsProduction` returns the production URL and Chromium host-resolver argument needed to
+exercise the hostname gate against a loopback server.
 
-`@lvbt/analytics/node` exports `checkHeadersFile(path, collector)`. It returns every missing CSP
-origin from every `Content-Security-Policy` line in a Cloudflare `_headers` file.
+`@lasvegasfortransit/analytics/node` exports `checkHeadersFile(path, collector)`. It returns every
+missing CSP origin from every `Content-Security-Policy` line in a Cloudflare `_headers` file.

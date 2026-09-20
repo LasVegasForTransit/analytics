@@ -1,5 +1,5 @@
 {
-  "name": "@lvbt/analytics-collector",
+  "name": "@lasvegasfortransit/analytics-collector",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -13,7 +13,7 @@
     "validate": "wrangler deploy --dry-run --outdir dist"
   },
   "dependencies": {
-    "@lvbt/analytics": "workspace:*",
+    "@lasvegasfortransit/analytics": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

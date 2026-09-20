@@ -23,8 +23,8 @@ Decisions the user made on 2026-09-01:
 - Cloudflare Web Analytics is the standard backend. CWA cannot record custom events, so events go to
   one tiny first-party Worker writing to Workers Analytics Engine. This is the only way to honor
   both choices; it adds one deployable, kept deliberately minimal.
-- Distribute the shared client as a published public npm package `@lvbt/analytics` from a new repo
-  `LasVegasForTransit/analytics`.
+- Distribute the shared client as a published public npm package `@lasvegasfortransit/analytics`
+  from a new repo `LasVegasForTransit/analytics`.
 - Wire the standalone `transit-funding` repo now; the Labs copy is canonical going forward and
   inherits through the Labs shared hook.
 - Heavy emphasis on developer ease of use, turnkey maintenance, and foolproof documentation for a
@@ -40,7 +40,7 @@ only, never free text, URLs, coordinates, or share ids; no IP or user-agent rete
 
 ```
                      ┌──────────────────────────────────────────────────┐
-  four sites ──────► │ @lvbt/analytics  (npm, ~1 KB, zero runtime deps) │
+  four sites ──────► │ @lasvegasfortransit/analytics  (npm, ~1 KB, zero runtime deps) │
   init({site,token}) │  gate → inject CWA beacon → track() → clicks     │
                      └───────┬──────────────────────────┬───────────────┘
                              │ pageviews, CWV, UTM      │ allowlisted events
@@ -69,7 +69,7 @@ Verified facts the design relies on (Cloudflare docs, 2026-09-01):
 
 ```
 analytics/
-├── packages/analytics/        # published as @lvbt/analytics
+├── packages/analytics/        # published as @lasvegasfortransit/analytics
 │   ├── src/index.ts           # init, track, shouldEnable, EVENTS, csp, VERSION, DEFAULT_COLLECTOR
 │   ├── src/gate.ts            # pure shouldEnable()
 │   ├── src/events.ts          # THE allowlist (shared with the collector via workspace import)
@@ -97,7 +97,7 @@ commits are already the org grammar; no per-PR changeset files for volunteers to
 runtime dependencies is enforced by a unit test. Size budget: `client.js` ≤ 1024 B gzip, `index.js`
 ≤ 1536 B gzip (website JS budget is 12 KB with ~10.9 KB used).
 
-### Public API of `@lvbt/analytics`
+### Public API of `@lasvegasfortransit/analytics`
 
 ```ts
 // site is the production hostname. It is both the identifier and the gate rule.
@@ -284,31 +284,31 @@ Each numbered step is one PR in one repo. Order matters: the package must publis
 - `/privacy`: `src/pages/privacy.astro` rendering a vendored copy of
   `analytics/docs/public/privacy.md` with a "canonical lives in analytics repo" comment; footer
   link; sitemap. Fix `docs/reference/newsletter-ops.md:64-68` (Beehiiv, not Ghost).
-- `tests/analytics.spec.ts` in the `ui-contracts` project using `@lvbt/analytics/testing`: served as
-  production → one beacon request, join click → one `join_click` POST; served from localhost → zero
-  requests.
+- `tests/analytics.spec.ts` in the `ui-contracts` project using
+  `@lasvegasfortransit/analytics/testing`: served as production → one beacon request, join click →
+  one `join_click` POST; served from localhost → zero requests.
 - Docs: `docs/reference/analytics.md`; shorten the RUM section of
   `docs/standards/performance-monitoring.md` to point there; glossary and index entries.
 - Measure `pnpm check:baseline`; bump `perf-budgets.json` `jsGzipKb` to 13 only if needed.
 
 ### Step 3. Labs
 
-- `pnpm-workspace.yaml` catalog: `'@lvbt/analytics': <exact>`; `turbo.json`
+- `pnpm-workspace.yaml` catalog: `'@lasvegasfortransit/analytics': <exact>`; `turbo.json`
   `globalEnv: ["PUBLIC_LVBT_CWA_TOKEN", "LVBT_REQUIRE_ANALYTICS"]` (prevents a cached token-less
   build being replayed).
 - `packages/brand`: first JS exports `./analytics` (`LABS_SITE`, `initLabsAnalytics()` which
-  dynamically imports `@lvbt/analytics` only when the token is set) and `./analytics/astro`
-  (`labsAnalytics()` wrapping the integration); `dependencies: { '@lvbt/analytics': 'catalog:' }`;
-  `env.d.ts`; `tests/analytics.test.ts`. This honors
-  `docs/development/reference/brand-and-ui.md:55`.
+  dynamically imports `@lasvegasfortransit/analytics` only when the token is set) and
+  `./analytics/astro` (`labsAnalytics()` wrapping the integration);
+  `dependencies: { '@lasvegasfortransit/analytics': 'catalog:' }`; `env.d.ts`;
+  `tests/analytics.test.ts`. This honors `docs/development/reference/brand-and-ui.md:55`.
 - `apps/home/astro.config.ts`: `integrations: [sitemap(), labsAnalytics()]`.
   `apps/transit-funding/vite.config.ts`: `envPrefix: ['VITE_', 'PUBLIC_']`; `src/main.tsx`:
   `void initLabsAnalytics()` before `createRoot`.
 - Archive builds: both `build:archive` scripts run with `PUBLIC_LVBT_CWA_TOKEN=` (empty); new
   `tooling/src/check-archive.ts` fails `pnpm check` if any file under `apps/*/dist-archive` contains
   `cloudflareinsights` or the collector host; `.env.example` per app.
-- `eslint.config.ts`: `no-restricted-imports` for `apps/**` forbidding direct `@lvbt/analytics`
-  (message: use `@lvbt/brand/analytics`).
+- `eslint.config.ts`: `no-restricted-imports` for `apps/**` forbidding direct
+  `@lasvegasfortransit/analytics` (message: use `@lvbt/brand/analytics`).
 - `public/_headers` per app with the standard CSP block (labs docs already require one; separable
   into its own PR if it causes churn). The JSON-LD `<script type="application/ld+json">` is data and
   passes `script-src 'self'`.
@@ -364,7 +364,7 @@ Each numbered step is one PR in one repo. Order matters: the package must publis
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Unit (analytics repo)     | table-driven `shouldEnable` for every reason; `EVENTS` validation rejects unknown names, extra keys, non-enum values; `csp.merge` idempotent; `init` idempotent under React StrictMode; `dependencies` empty; collector handler tests assert `writeDataPoint` call counts (1 valid, 0 for GPC/400/403/429) |
 | Size                      | `check-size.ts` in the analytics repo; website `bundle-size.ts` 12 KB budget; TransitMapper `report-bundle.ts`                                                                                                                                                                                             |
-| Browser (each consumer)   | Playwright with `@lvbt/analytics/testing`: production host → exactly one `beacon.min.js` request and one `/e` POST with the exact JSON on the conversion; localhost/preview/archive/framed/GPC → zero requests; no cookies or storage written                                                              |
+| Browser (each consumer)   | Playwright with `@lasvegasfortransit/analytics/testing`: production host → exactly one `beacon.min.js` request and one `/e` POST with the exact JSON on the conversion; localhost/preview/archive/framed/GPC → zero requests; no cookies or storage written                                                |
 | Static (each consumer CI) | `lvbt-analytics csp --check public/_headers`; labs `check:archive` grep                                                                                                                                                                                                                                    |
 | Deploy smoke              | `verify … --expect present` on production, `--expect absent` on website previews and TransitMapper embeds; the Astro integration/shell guard fails the build if the token is missing                                                                                                                       |
 | Live, weekly              | `weekly.yml` verifies all four hosts and publishes the report issue                                                                                                                                                                                                                                        |

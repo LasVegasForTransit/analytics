@@ -1,4 +1,4 @@
-import { EVENTS, type AnalyticsEvent } from '@lvbt/analytics';
+import { EVENTS, type AnalyticsEvent } from '@lasvegasfortransit/analytics';
 
 export function dataPoint(
   event: AnalyticsEvent,

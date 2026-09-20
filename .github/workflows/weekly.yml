@@ -28,7 +28,8 @@ jobs:
         run: pnpm build
 
       - name: Install Chromium
-        run: pnpm --filter @lvbt/analytics exec playwright install --with-deps chromium
+        run:
+          pnpm --filter @lasvegasfortransit/analytics exec playwright install --with-deps chromium
 
       - name: Verify public sites
         run: |

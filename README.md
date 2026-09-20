@@ -10,19 +10,19 @@ Analytics stays off on localhost, preview deployments, retired archives, and fra
 
 ## Choose an integration
 
-| Project              | Entry point             | Setup                                                      |
-| -------------------- | ----------------------- | ---------------------------------------------------------- |
-| Astro                | `@lvbt/analytics/astro` | Add `lvbtAnalytics({ site })` to `astro.config.ts`         |
-| Vite or React        | `@lvbt/analytics`       | Call `init({ site, token })` before rendering              |
-| React component tree | `@lvbt/analytics/react` | Render `<Analytics>` and call `useTrack()`                 |
-| Plain HTML           | generated client        | Run `lvbt-analytics client --out public/lvbt-analytics.js` |
+| Project              | Entry point                           | Setup                                                      |
+| -------------------- | ------------------------------------- | ---------------------------------------------------------- |
+| Astro                | `@lasvegasfortransit/analytics/astro` | Add `lvbtAnalytics({ site })` to `astro.config.ts`         |
+| Vite or React        | `@lasvegasfortransit/analytics`       | Call `init({ site, token })` before rendering              |
+| React component tree | `@lasvegasfortransit/analytics/react` | Render `<Analytics>` and call `useTrack()`                 |
+| Plain HTML           | generated client                      | Run `lvbt-analytics client --out public/lvbt-analytics.js` |
 
 Production builds receive `PUBLIC_LVBT_CWA_TOKEN` and set `LVBT_REQUIRE_ANALYTICS=1`. Preview and
 local builds receive neither value, so the client is absent rather than merely pointed at a test
 property.
 
 ```ts
-import lvbtAnalytics from '@lvbt/analytics/astro';
+import lvbtAnalytics from '@lasvegasfortransit/analytics/astro';
 
 export default defineConfig({
   integrations: [lvbtAnalytics({ site: 'labs.lasvegasfortransit.org' })],
@@ -30,7 +30,7 @@ export default defineConfig({
 ```
 
 ```ts
-import { init } from '@lvbt/analytics';
+import { init } from '@lasvegasfortransit/analytics';
 
 init({
   site: 'map.lasvegasfortransit.org',

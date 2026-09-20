@@ -1,4 +1,4 @@
-import { eventPayload, EVENTS, type AnalyticsEvent } from '@lvbt/analytics';
+import { eventPayload, EVENTS, type AnalyticsEvent } from '@lasvegasfortransit/analytics';
 import { z } from 'zod';
 
 export type CollectedEvent = AnalyticsEvent & { country?: string };

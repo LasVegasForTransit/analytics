@@ -46,5 +46,10 @@ Site identifiers are production hostnames without a scheme or path:
 - `labs.lasvegasfortransit.org`
 - `fund.lasvegasfortransit.org`
 - `map.lasvegasfortransit.org`
+- `lvwwd.org`, the Week Without Driving Las Vegas campaign site
 
 The client accepts the exact hostname and its `www.` form. Other hostnames fail the production gate.
+
+`lvwwd.org` is not a `lasvegasfortransit.org` subdomain, so the organization's Web Analytics site
+does not cover it. It has its own Web Analytics site, and its token lives in the
+week-without-driving repository's `production` environment rather than in the organization variable.

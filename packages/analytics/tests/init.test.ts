@@ -77,6 +77,24 @@ test('tracks a valid delegated event from a nested click target', () => {
   expect(sendBeacon).toHaveBeenCalledOnce();
 });
 
+test('reads each declared property of a delegated event from its data attribute', () => {
+  vi.spyOn(document.head, 'append').mockImplementation(() => undefined);
+  const sendBeacon = vi.fn(() => true);
+  Object.defineProperty(navigator, 'sendBeacon', { configurable: true, value: sendBeacon });
+  init({ site: 'test.example', token: 'a'.repeat(32) });
+  const print = document.createElement('button');
+  print.dataset.lvbtEvent = 'material_printed';
+  print.dataset.lvbtItem = 'bingo_card';
+  const mail = document.createElement('a');
+  mail.dataset.lvbtEvent = 'mail_in_viewed';
+  document.body.append(print, mail);
+
+  print.click();
+  mail.click();
+
+  expect(sendBeacon).toHaveBeenCalledTimes(2);
+});
+
 test('falls back to keepalive fetch when sendBeacon declines the event', () => {
   vi.spyOn(document.head, 'append').mockImplementation(() => undefined);
   Object.defineProperty(navigator, 'sendBeacon', {

@@ -41,6 +41,8 @@ jobs:
             --site fund.lasvegasfortransit.org --expect present
           node packages/analytics/dist/cli/index.mjs verify https://map.lasvegasfortransit.org \
             --site map.lasvegasfortransit.org --expect present
+          node packages/analytics/dist/cli/index.mjs verify https://lvwwd.org \
+            --site lvwwd.org --expect present
 
       - name: Build reports
         run: |

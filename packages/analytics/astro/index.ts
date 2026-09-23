@@ -38,7 +38,20 @@ export function lvbtAnalytics(options: LvbtAnalyticsOptions): AstroIntegration {
           'page',
           `import { init } from '@lasvegasfortransit/analytics'; const options = ${JSON.stringify({ ...serializable, collector, token })}; ${patternAssignments} init(options);`,
         );
-        updateConfig({ vite: { build: { assetsInlineLimit: 0 } } });
+        // Keep script chunks external so a `script-src 'self'` policy still runs them, and leave
+        // every other asset, such as small stylesheets, to the site's own inlining rule.
+        const siteLimit = config.vite.build?.assetsInlineLimit;
+        updateConfig({
+          vite: {
+            build: {
+              assetsInlineLimit: (filePath: string, content: Buffer) => {
+                if (/\.m?js$/.test(filePath)) return false;
+                if (typeof siteLimit === 'function') return siteLimit(filePath, content);
+                return siteLimit === undefined ? undefined : content.byteLength < siteLimit;
+              },
+            },
+          },
+        });
       },
     },
   };

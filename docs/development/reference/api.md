@@ -80,8 +80,9 @@ try {
 ## Framework entry points
 
 `@lasvegasfortransit/analytics/astro` exports `lvbtAnalytics(options)`. It reads the standard
-environment, injects an external page module only when a token exists, and disables JavaScript asset
-inlining so the site CSP remains enforceable.
+environment, injects an external page module only when a token exists, and keeps script chunks out
+of the HTML so a `script-src 'self'` policy still runs them. Stylesheets and other assets keep the
+site's own inlining rule, so small page styles stay inline.
 
 `@lasvegasfortransit/analytics/react` exports `Analytics`, `useAnalytics`, and `useTrack`. The
 provider initializes the shared client after mount. Hooks return the disabled no-op handle during

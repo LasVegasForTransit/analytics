@@ -60,8 +60,22 @@ HTML elements use the same typed contract without application code:
 <a href="/join" data-lvbt-event="join_click" data-lvbt-placement="header">Join</a>
 ```
 
-Unknown names, property keys, and enum values are ignored by delegated click tracking and rejected
-by direct `track` calls.
+Each declared property reads from the `data-lvbt-` attribute of the same name, so `material_printed`
+reads `data-lvbt-item` and an event without properties needs only `data-lvbt-event`. Unknown names,
+property keys, and enum values are ignored by delegated click tracking and rejected by direct
+`track` calls. Server-only events are rejected in the browser.
+
+Classic scripts that cannot import the package call the same function through `window.lvbt`, which
+exists only after the gate enables analytics. Wrap the call so an analytics mistake never stops the
+page:
+
+```js
+try {
+  window.lvbt?.track('bus_finder_used', { method: 'place' });
+} catch {
+  // An event outside the allowlist is dropped.
+}
+```
 
 ## Framework entry points
 

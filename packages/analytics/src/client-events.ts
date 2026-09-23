@@ -1,44 +1,23 @@
-import type { AnalyticsEvent, EventName, PropsFor } from './events.js';
-
-const placements = ['header', 'footer', 'hero', 'inline', 'dialog'] as const;
-const features = [
-  'share_created',
-  'share_opened',
-  'export_png',
-  'export_svg',
-  'export_json',
-  'gtfs_import',
-  'sim_started',
-  'fuel_lever_moved',
-  'scenario_changed',
-] as const;
-
-function declaration(name: EventName) {
-  if (name === 'join_click' || name === 'donate_click') return ['placement', placements] as const;
-  if (name === 'tool_feature_used') return ['feature', features] as const;
-  return undefined;
-}
+import { eventPayload, EVENTS, type EventName, type PropsFor } from './events.js';
 
 export function clientEvent<N extends EventName>(site: string, name: N, props: PropsFor<N>) {
-  const declared = declaration(name);
-  if (
-    !declared ||
-    Object.keys(props).length !== 1 ||
-    typeof props[declared[0] as keyof PropsFor<N>] !== 'string' ||
-    !(declared[1] as readonly string[]).includes(props[declared[0] as keyof PropsFor<N>])
-  )
-    throw new Error('Analytics event is not declared.');
-  return { site, name, props } as AnalyticsEvent;
+  const event = eventPayload({ site, name, props });
+  if (EVENTS[event.name].source !== 'client') throw new Error('Analytics event is not declared.');
+  return event;
 }
 
+// data-lvbt-event names the event; data-lvbt-<property> carries each declared property.
 export function delegatedEvent(target: HTMLElement) {
-  const name = target.dataset.lvbtEvent as EventName;
-  const key = name === 'tool_feature_used' ? 'feature' : 'placement';
-  const value = key === 'feature' ? target.dataset.lvbtFeature : target.dataset.lvbtPlacement;
+  const name = target.dataset.lvbtEvent ?? '';
+  if (!Object.prototype.hasOwnProperty.call(EVENTS, name)) return undefined;
+  const props = Object.fromEntries(
+    Object.keys(EVENTS[name as EventName].props).map((key) => [
+      key,
+      target.dataset[`lvbt${key.charAt(0).toUpperCase()}${key.slice(1)}`],
+    ]),
+  );
   try {
-    return clientEvent(target.dataset.lvbtSite ?? '', name, {
-      [key]: value,
-    } as PropsFor<EventName>);
+    return clientEvent(target.dataset.lvbtSite ?? '', name as EventName, props as never);
   } catch {
     return undefined;
   }

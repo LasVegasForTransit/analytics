@@ -1,3 +1,14 @@
+// lvwwd.org, the Week Without Driving Las Vegas campaign site, counts its
+// campaign steps with these values. Each is a day of the week, a running
+// count, or a fixed label; none says who a person is or what they wrote.
+const campaignDays = ['1', '2', '3', '4', '5', '6', '7', '8'] as const;
+// prettier-ignore
+const markedSquares = [
+  '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12',
+  '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24',
+] as const;
+const completedLines = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'] as const;
+
 export const EVENTS = {
   newsletter_signup: {
     source: 'server',
@@ -46,6 +57,40 @@ export const EVENTS = {
       ],
     },
   },
+  campaign_signup: { source: 'client', sites: ['lvwwd.org'], props: {} },
+  week_link_requested: {
+    source: 'client',
+    sites: ['lvwwd.org'],
+    props: { method: ['link_form', 'signup_form'] },
+  },
+  trip_entry_submitted: {
+    source: 'client',
+    sites: ['lvwwd.org'],
+    props: { day: campaignDays, method: ['link', 'screenshot', 'link_and_screenshot'] },
+  },
+  trip_picture_shared: {
+    source: 'client',
+    sites: ['lvwwd.org'],
+    props: { method: ['share_sheet', 'download'] },
+  },
+  bingo_square_marked: { source: 'client', sites: ['lvwwd.org'], props: { marked: markedSquares } },
+  bingo_completed: { source: 'client', sites: ['lvwwd.org'], props: { lines: completedLines } },
+  bus_finder_used: {
+    source: 'client',
+    sites: ['lvwwd.org'],
+    props: { method: ['my_location', 'place'] },
+  },
+  app_installed: {
+    source: 'client',
+    sites: ['lvwwd.org'],
+    props: { method: ['browser', 'home_screen'] },
+  },
+  material_printed: {
+    source: 'client',
+    sites: ['lvwwd.org'],
+    props: { item: ['partner_flyer', 'bingo_card'] },
+  },
+  mail_in_viewed: { source: 'client', sites: ['lvwwd.org'], props: {} },
 } as const;
 
 export type EventName = keyof typeof EVENTS;

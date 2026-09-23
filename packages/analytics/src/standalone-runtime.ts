@@ -1,15 +1,4 @@
-const placements = ['header', 'footer', 'hero', 'inline', 'dialog'];
-const features = [
-  'share_created',
-  'share_opened',
-  'export_png',
-  'export_svg',
-  'export_json',
-  'gtfs_import',
-  'sim_started',
-  'fuel_lever_moved',
-  'scenario_changed',
-];
+import { clientEvent, delegatedEvent } from './client-events.js';
 
 interface StandaloneEnvironment {
   hostname?: string;
@@ -30,17 +19,7 @@ function framed() {
   }
 }
 
-function valid(name: string, props: Record<string, string>) {
-  const key = name === 'tool_feature_used' ? 'feature' : 'placement';
-  const values = key === 'feature' ? features : placements;
-  return (
-    (key === 'feature' || name === 'join_click' || name === 'donate_click') &&
-    Object.keys(props).length === 1 &&
-    values.includes(props[key] ?? '')
-  );
-}
-
-// eslint-disable-next-line complexity -- Inline checks keep the standalone runtime under its budget.
+// eslint-disable-next-line complexity -- Inline gate checks keep the standalone runtime small.
 export function startStandalone(
   script: HTMLScriptElement | null,
   environment: StandaloneEnvironment = {},
@@ -69,8 +48,7 @@ export function startStandalone(
   const collector = script.dataset.lvbtCollector ?? 'https://events.lasvegasfortransit.org';
   const sent = new Set<string>();
   const track = (name: string, props: Record<string, string>) => {
-    if (!valid(name, props)) throw new Error('Analytics event is not declared.');
-    const body = JSON.stringify({ site, name, props });
+    const body = JSON.stringify(clientEvent(site, name as never, props as never));
     if (sent.has(body)) return;
     sent.add(body);
     const blob = new Blob([body], { type: 'text/plain' });
@@ -95,10 +73,7 @@ export function startStandalone(
         event.target instanceof Element
           ? event.target.closest<HTMLElement>('[data-lvbt-event]')
           : null;
-      if (!target) return;
-      const name = target.dataset.lvbtEvent ?? '';
-      const key = name === 'tool_feature_used' ? 'feature' : 'placement';
-      const value = key === 'feature' ? target.dataset.lvbtFeature : target.dataset.lvbtPlacement;
-      if (value && valid(name, { [key]: value })) track(name, { [key]: value });
+      const payload = target ? delegatedEvent(target) : undefined;
+      if (payload) track(payload.name, payload.props);
     });
 }

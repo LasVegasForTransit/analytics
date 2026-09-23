@@ -1,6 +1,6 @@
 {
   "name": "@lasvegasfortransit/analytics",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Privacy-preserving analytics for Las Vegas for Better Transit web properties.",
   "license": "MIT",
   "repository": {

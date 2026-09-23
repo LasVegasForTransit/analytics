@@ -4,7 +4,9 @@ A conversion event represents a small, durable product action that cannot be ans
 pageviews. Confirm that the question needs a custom event before changing the allowlist.
 
 1. Add one entry to `packages/analytics/src/events.ts`. Choose `client` or `server`, list the exact
-   production sites, and use enum properties only.
+   production sites, and use enum properties only. Name the event in lowercase snake case, such as
+   `trip_entry_submitted`. Write each value as a short lowercase label or a small count, such as
+   `screenshot` or `3`; a unit test rejects anything else.
 2. Add valid and invalid cases to `packages/analytics/tests/events.test.ts` and the collector
    workerd suite.
 3. Run `pnpm exec lvbt-analytics events --markdown` and update the event reference with the exact

@@ -4,8 +4,9 @@ Las Vegas for Better Transit uses privacy-preserving analytics to understand whi
 tools are useful and whether the sites perform well.
 
 Cloudflare Web Analytics records aggregate page use and performance without cookies. A small
-LVBT-operated service records a limited set of actions such as selecting a join link or using an
-export feature. Those actions contain predefined categories, not form contents or other free text.
+LVBT-operated service records a limited set of actions such as selecting a join link, using an
+export feature, or finishing a campaign step like signing up. Those actions contain predefined
+categories, not form contents or other free text.
 
 The system does not create visitor or session identifiers, fingerprint browsers, or store IP
 addresses and user-agent strings with events. It does not collect names, email addresses, search

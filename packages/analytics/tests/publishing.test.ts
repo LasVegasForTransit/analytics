@@ -27,7 +27,7 @@ test('publishes from the canonical repository through GitHub Packages', async ()
   expect(workflow).not.toMatch(/(^|\s)npm publish/);
   expect(workflow).toContain('packages: write');
   expect(workflow).toContain('NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}');
-  expect(packageJson.version).toBe('0.1.0');
+  expect(packageJson.version).toBe('0.2.0');
   expect(VERSION).toBe(packageJson.version);
   expect(packageJson.bin).toEqual({ 'lvbt-analytics': 'dist/cli/index.mjs' });
   expect(packageJson.files).toContain('LICENSE');

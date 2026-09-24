@@ -1,6 +1,6 @@
 # Website analytics and privacy
 
-Las Vegas for Better Transit uses privacy-preserving analytics to understand which public pages and
+Las Vegans for Better Transit uses privacy-preserving analytics to understand which public pages and
 tools are useful and whether the sites perform well.
 
 Cloudflare Web Analytics records aggregate page use and performance without cookies. A small

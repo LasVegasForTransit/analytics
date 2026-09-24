@@ -1,5 +1,5 @@
 {
-  "extends": "@lvbt/typescript-config/browser.json",
+  "extends": "@lasvegasfortransit/typescript-config/browser.json",
   "compilerOptions": {
     "jsx": "react-jsx"
   },

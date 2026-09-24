@@ -1,7 +1,13 @@
-import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path, { resolve } from 'node:path';
 import { expect, test, vi } from 'vitest';
-import { eventsMarkdown, verifyDeployment, type VerifyPage } from '../src/cli/commands.js';
+import {
+  eventsMarkdown,
+  verifyDeployment,
+  writeCsp,
+  type VerifyPage,
+} from '../src/cli/commands.js';
 
 test('renders the event reference from the runtime allowlist', () => {
   const markdown = eventsMarkdown();
@@ -177,4 +183,38 @@ test('verifies excluded deployments by observing no analytics requests', async (
   await expect(
     verifyDeployment('https://preview.example', 'labs.lasvegasfortransit.org', 'absent', withPage),
   ).resolves.toBeUndefined();
+});
+
+test('writes the merged CSP once; a second run leaves the file untouched', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'lvbt-analytics-csp-'));
+  const file = path.join(directory, '_headers');
+  await writeFile(file, "/*\n  Content-Security-Policy: default-src 'self'; object-src 'none'\n");
+
+  const first = await writeCsp(file);
+  expect(first.changed).toBe(true);
+  const contentsAfterFirst = await readFile(file, 'utf8');
+  expect(contentsAfterFirst).toContain('https://static.cloudflareinsights.com');
+  expect(contentsAfterFirst).toContain('https://events.lasvegasfortransit.org');
+  const mtimeAfterFirst = (await stat(file)).mtimeMs;
+
+  // A real filesystem's mtime resolution can be coarser than the gap between
+  // these two writes, so wait past it — otherwise an unwanted second write
+  // could coincidentally land on the same tick and hide as "unchanged".
+  await new Promise((resolveTimeout) => setTimeout(resolveTimeout, 20));
+
+  const second = await writeCsp(file);
+  expect(second.changed).toBe(false);
+  const contentsAfterSecond = await readFile(file, 'utf8');
+  const mtimeAfterSecond = (await stat(file)).mtimeMs;
+
+  expect(contentsAfterSecond).toBe(contentsAfterFirst);
+  expect(mtimeAfterSecond).toBe(mtimeAfterFirst);
+});
+
+test('rejects a headers file with no Content-Security-Policy header', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'lvbt-analytics-csp-'));
+  const file = path.join(directory, '_headers');
+  await writeFile(file, '/*\n  X-Content-Type-Options: nosniff\n');
+
+  await expect(writeCsp(file)).rejects.toThrow('No Content-Security-Policy header was found');
 });

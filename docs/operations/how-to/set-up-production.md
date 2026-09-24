@@ -7,7 +7,7 @@ checking whether it is already done, so you can follow the guide again at any ti
 done is skipped, and nothing is replaced unless a step says so. Replacing a value on purpose is
 covered in [Rotate the collector secret](rotate-the-events-secret.md).
 
-Once this repository moves to repository tooling 0.4.2 or later, a `platform.json` and
+Once this repository moves to repository tooling 0.4.0 or later, a `platform.json` and
 `pnpm bootstrap --production` will check and set up most of this for you, and this guide will point
 to them.
 
@@ -58,20 +58,29 @@ collector Worker and attach its custom domain. If `gh secret list --env producti
 It is an account API token, so deploys keep working after the person who made it leaves. Wrangler
 accepts it because the workflow also sets `CLOUDFLARE_ACCOUNT_ID`.
 
-1. In the Cloudflare dashboard, choose "Las Vegans for Better Transit" and go to Manage Account,
-   then "Account API Tokens"
-   (<https://dash.cloudflare.com/2557b5c2e166292ded0f8425b73075e9/api-tokens>). Click "Create
-   Token", then "Create Custom Token".
+1. In the Cloudflare dashboard, choose the LVBT account and check that its name is "Las Vegans for
+   Better Transit". If it still says "Las Vegas for Better Transit", correct the name under the
+   account's settings before continuing. Go to Manage Account, then "Account API Tokens"
+   (<https://dash.cloudflare.com/2557b5c2e166292ded0f8425b73075e9/api-tokens>). This is the
+   account's own token list, not your personal one under your profile, so the token keeps working
+   after anyone leaves. Click "Create Token", then "Create Custom Token".
 2. Name it `analytics collector deploy (GitHub Actions)`.
 3. Under "Permissions", add these rows: "Account", "Workers Scripts", "Edit" (uploads the Worker and
    attaches its custom domain); "Account", "Account Settings", "Read"; "Zone", "Zone", "Read" (finds
    the zone for the custom domain); and "Zone", "Workers Routes", "Edit".
-4. Under "Zone Resources", choose "Include", then "Specific zone", then `lasvegasfortransit.org`.
-5. Leave the expiration empty, so deploys keep working. Click "Continue to summary", then "Create
+4. Under "Account Resources", choose "Include", then the LVBT account by name — never "All
+   accounts", which would let this token touch every Cloudflare account you can reach.
+5. Under "Zone Resources", choose "Include", then "Specific zone", then `lasvegasfortransit.org` —
+   never "All zones", so a leaked token cannot touch any other LVBT domain.
+6. Leave the expiration empty, so deploys keep working. Click "Continue to summary", then "Create
    Token".
-6. Run `gh secret set CLOUDFLARE_API_TOKEN --env production` in a terminal and leave it waiting at
+7. Run `gh secret set CLOUDFLARE_API_TOKEN --env production` in a terminal and leave it waiting at
    its prompt.
-7. Copy the token (Cloudflare shows it only once), paste it at that prompt, and press Enter.
+8. Copy the token (Cloudflare shows it only once), paste it at that prompt, and press Enter.
+
+If a deploy fails on the custom domain step with a permissions error, check that the token has the
+Workers Scripts and Workers Routes permissions above for the correct account and zone. Do not add
+broader permissions without identifying the failed API call.
 
 ## 4. Create the report token
 
@@ -81,10 +90,13 @@ The weekly report reads the collector's Analytics Engine data through Cloudflare
 
 1. On the same "Account API Tokens" page, click "Create Token", then "Create Custom Token".
 2. Name it `analytics weekly report (GitHub Actions)`.
-3. Under "Permissions", add one row: "Account", "Account Analytics", "Read". Add nothing else.
-4. Leave the expiration empty, click "Continue to summary", then "Create Token".
-5. Run `gh secret set CLOUDFLARE_ANALYTICS_READ_TOKEN` and leave it waiting at its prompt.
-6. Copy the token, paste it at that prompt, and press Enter.
+3. Under "Permissions", add one row: "Account", "Account Analytics", "Read". Add nothing else — this
+   token can read analytics and nothing about the account, so a leak exposes only aggregate numbers.
+4. Under "Account Resources", choose "Include", then the LVBT account by name — never "All
+   accounts".
+5. Leave the expiration empty, click "Continue to summary", then "Create Token".
+6. Run `gh secret set CLOUDFLARE_ANALYTICS_READ_TOKEN` and leave it waiting at its prompt.
+7. Copy the token, paste it at that prompt, and press Enter.
 
 ## 5. Deploy the collector and its custom domain
 
@@ -93,8 +105,9 @@ domain. Deploying creates the domain's DNS record and certificate, and redeployi
 Worker changes nothing.
 
 1. Check: open <https://events.lasvegasfortransit.org/health>. If it answers, go to section 6.
-2. If the Cloudflare dashboard's DNS records for `lasvegasfortransit.org` already have a CNAME named
-   `events`, delete it first: a custom domain cannot replace an existing CNAME.
+2. If the Cloudflare dashboard's DNS records for `lasvegasfortransit.org` already have a record
+   named `events`, check who owns it and whether it serves traffic. Stop and resolve that conflict
+   before deploying; do not delete an existing record just to make the custom domain creation pass.
 3. In the repository's Actions tab, open "Deploy collector" and click "Run workflow" on `main`. It
    runs `pnpm check`, deploys, and then checks `/health`.
 

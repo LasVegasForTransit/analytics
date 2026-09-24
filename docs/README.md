@@ -14,6 +14,7 @@ design reasoning.
 - [Add a conversion event](development/how-to/add-a-conversion-event.md)
 - [Update the repository standard](development/how-to/update-the-repository-standard.md)
 - [Upgrade consumer repositories](development/how-to/upgrade-consumers.md)
+- [Set up the analytics production](operations/how-to/set-up-production.md)
 - [Verify a deployment](operations/how-to/verify-a-deployment.md)
 - [Read an analytics report](operations/how-to/read-a-report.md)
 - [Rotate the Web Analytics token](operations/how-to/rotate-the-cwa-token.md)

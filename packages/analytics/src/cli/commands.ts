@@ -22,7 +22,11 @@ export async function checkCsp(path: string) {
   return checkHeadersFile(path);
 }
 
-export async function writeCsp(path: string) {
+export interface WriteCspResult {
+  changed: boolean;
+}
+
+export async function writeCsp(path: string): Promise<WriteCspResult> {
   const contents = await readFile(path, 'utf8');
   const pattern = /^(\s*Content-Security-Policy:\s*)(.+)$/gim;
   if (!pattern.test(contents))
@@ -31,7 +35,9 @@ export async function writeCsp(path: string) {
   const updated = contents.replace(pattern, (_line, prefix: string, policy: string) => {
     return `${prefix}${csp.merge(policy)}`;
   });
+  if (updated === contents) return { changed: false };
   await writeFile(path, updated);
+  return { changed: true };
 }
 
 export async function writeClient(path: string) {

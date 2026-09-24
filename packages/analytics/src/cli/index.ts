@@ -12,6 +12,22 @@ function usage(): never {
   );
 }
 
+async function runCsp(args: string[]) {
+  const checkPath = value(args, '--check');
+  if (checkPath) {
+    const errors = await checkCsp(checkPath);
+    if (errors.length > 0) throw new Error(errors.join('\n'));
+    return;
+  }
+  const writePath = value(args, '--write') ?? usage();
+  const result = await writeCsp(writePath);
+  process.stdout.write(
+    result.changed
+      ? `Updated the Content-Security-Policy header in ${writePath}.\n`
+      : `The Content-Security-Policy header in ${writePath} already includes everything analytics needs; no change made.\n`,
+  );
+}
+
 export async function run(args = process.argv.slice(2)) {
   const [command, operand] = args;
   switch (command) {
@@ -19,16 +35,9 @@ export async function run(args = process.argv.slice(2)) {
       if (!args.includes('--markdown')) usage();
       process.stdout.write(eventsMarkdown());
       return;
-    case 'csp': {
-      const checkPath = value(args, '--check');
-      if (checkPath) {
-        const errors = await checkCsp(checkPath);
-        if (errors.length > 0) throw new Error(errors.join('\n'));
-        return;
-      }
-      await writeCsp(value(args, '--write') ?? usage());
+    case 'csp':
+      await runCsp(args);
       return;
-    }
     case 'client':
       await writeClient(value(args, '--out') ?? usage());
       return;

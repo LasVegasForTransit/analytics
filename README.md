@@ -1,7 +1,7 @@
 # LVBT Analytics
 
-LVBT Analytics gives Las Vegas for Better Transit one privacy-preserving measurement standard across
-its public websites and tools. Cloudflare Web Analytics records page use and performance; the
+LVBT Analytics gives Las Vegans for Better Transit one privacy-preserving measurement standard
+across its public websites and tools. Cloudflare Web Analytics records page use and performance; the
 first-party collector records a small, typed set of conversion events.
 
 The system does not set cookies, create visitor identifiers, fingerprint browsers, or retain IP

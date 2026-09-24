@@ -1,5 +1,5 @@
 {
-  "extends": "@lvbt/typescript-config/worker.json",
+  "extends": "@lasvegasfortransit/typescript-config/worker.json",
   "compilerOptions": {
     "types": ["node", "@cloudflare/vitest-pool-workers/types"]
   },

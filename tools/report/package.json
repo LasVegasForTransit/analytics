@@ -11,8 +11,8 @@
     "validate": "tsc --noEmit"
   },
   "devDependencies": {
-    "@lvbt/eslint-config": "file:../../.lvbt/web-platform/packages/eslint-config",
-    "@lvbt/typescript-config": "file:../../.lvbt/web-platform/packages/typescript-config",
+    "@lasvegasfortransit/eslint-config": "file:../../.lvbt/web-platform/packages/eslint-config",
+    "@lasvegasfortransit/typescript-config": "file:../../.lvbt/web-platform/packages/typescript-config",
     "@types/node": "catalog:",
     "eslint": "catalog:",
     "tsx": "catalog:",

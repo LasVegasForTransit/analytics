@@ -14,6 +14,32 @@ pnpm add @lasvegasfortransit/analytics
 
 Use the production hostname as `site`. Do not invent a product ID or include `https://`.
 
+## Get a Cloudflare Web Analytics token
+
+Check first: a `lasvegasfortransit.org` subdomain (the root domain, `labs.`, `fund.`, or `map.`)
+shares the organization's existing Web Analytics property and its token, the GitHub organization
+variable `PUBLIC_LVBT_CWA_TOKEN`. Confirm it already exists —
+`gh variable list --org LasVegasForTransit` — and skip to
+[Configure production](#configure-production). Never create a second Web Analytics property for a
+`lasvegasfortransit.org` subdomain; one property already covers the whole domain.
+
+A site on any other domain (for example `lvwwd.org`) needs its own property and its own token,
+because a Cloudflare Web Analytics token is scoped to one hostname family:
+
+1. Open the account's Web Analytics page (<https://dash.cloudflare.com/?to=/:account/web-analytics>
+   with the LVBT account) and click "Add a site". If the hostname is already listed, open it instead
+   and skip to step 3.
+2. Choose the new site's hostname and click "Done". Cloudflare defaults every new site to automatic
+   setup, which injects the beacon itself; open "Manage site" and change it to "Enable with JS
+   Snippet installation" instead, because this repository's own client loads the beacon — automatic
+   injection would load it twice. If the hostname is not proxied through Cloudflare (not
+   orange-clouded), Cloudflare only offers the JS snippet option, so there is nothing to change.
+3. On "Manage site", copy only the token inside `data-cf-beacon='{"token": "..."}'` in the shown
+   snippet (32 lowercase letters and digits). It is public by design, so it is a GitHub environment
+   variable, not a secret: in the consuming repository, Settings → Environments → `production` →
+   Environment variables → "Add environment variable", name `PUBLIC_LVBT_CWA_TOKEN`, value the token
+   you copied.
+
 For Astro, add the integration to `astro.config.ts`:
 
 ```ts

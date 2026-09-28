@@ -11,3 +11,6 @@ test-results/
 .dev.vars
 .dev.vars.*
 .DS_Store
+blob-report/
+**/playwright/.cache/
+.claude/worktrees/

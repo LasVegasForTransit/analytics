@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "wrangler deploy --dry-run --outdir dist",
-    "dev": "wrangler dev",
+    "build": "cf build",
+    "dev": "cf dev",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
     "types": "wrangler types",
-    "validate": "wrangler deploy --dry-run --outdir dist"
+    "validate": "node scripts/check-config.mjs"
   },
   "dependencies": {
     "@lasvegasfortransit/analytics": "workspace:*",
@@ -21,6 +21,7 @@
     "@lasvegasfortransit/eslint-config": "file:../../.lvbt/web-platform/packages/eslint-config",
     "@lasvegasfortransit/typescript-config": "file:../../.lvbt/web-platform/packages/typescript-config",
     "@types/node": "catalog:",
+    "cf": "catalog:",
     "eslint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",

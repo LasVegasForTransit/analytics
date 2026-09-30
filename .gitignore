@@ -5,6 +5,7 @@ playwright-report/
 test-results/
 .turbo/
 .wrangler/
+.cloudflare/
 .env
 .env.*
 !.env.example

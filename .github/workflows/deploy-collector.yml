@@ -6,7 +6,11 @@ on:
     paths:
       - 'apps/collector/**'
       - 'packages/analytics/src/events.ts'
+      - 'package.json'
       - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.lvbt/web-platform.json'
+      - '.lvbt/web-platform/**'
       - '.github/workflows/deploy-collector.yml'
   workflow_dispatch:
 
@@ -40,7 +44,7 @@ jobs:
         run: pnpm check
 
       - name: Deploy
-        run: pnpm --filter @lasvegasfortransit/analytics-collector exec wrangler deploy
+        run: pnpm run deploy
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

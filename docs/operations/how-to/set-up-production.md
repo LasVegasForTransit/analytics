@@ -7,13 +7,9 @@ checking whether it is already done, so you can follow the guide again at any ti
 done is skipped, and nothing is replaced unless a step says so. Replacing a value on purpose is
 covered in [Rotate the collector secret](rotate-the-events-secret.md).
 
-Once this repository moves to repository tooling 0.4.0 or later, a `platform.json` and
-`pnpm bootstrap --production` will check and set up most of this for you, and this guide will point
-to them.
-
 ## Before you start
 
-- `pnpm bootstrap` passes on your machine, so the GitHub CLI and Wrangler are signed in.
+- `pnpm bootstrap` passes on your machine, so the GitHub CLI and `cf` are signed in.
 - You are an admin of `LasVegasForTransit/analytics`, so you can create environments and secrets.
 - You have the Super Administrator role on the LVBT Cloudflare account, "Las Vegans for Better
   Transit" (ID `2557b5c2e166292ded0f8425b73075e9`), because the tokens below belong to that account
@@ -55,7 +51,7 @@ The Deploy workflow uses `CLOUDFLARE_API_TOKEN` in the `production` environment 
 collector Worker and attach its custom domain. If `gh secret list --env production` already shows
 `CLOUDFLARE_API_TOKEN`, skip this section.
 
-It is an account API token, so deploys keep working after the person who made it leaves. Wrangler
+It is an account API token, so deploys keep working after the person who made it leaves. `cf`
 accepts it because the workflow also sets `CLOUDFLARE_ACCOUNT_ID`.
 
 1. In the Cloudflare dashboard, choose the LVBT account and check that its name is "Las Vegans for
@@ -100,8 +96,9 @@ The weekly report reads the collector's Analytics Engine data through Cloudflare
 
 ## 5. Deploy the collector and its custom domain
 
-The collector's `apps/collector/wrangler.jsonc` declares `events.lasvegasfortransit.org` as a custom
-domain. Deploying creates the domain's DNS record and certificate, and redeploying an unchanged
+The collector's `apps/collector/cloudflare.config.ts` declares `events.lasvegasfortransit.org` as a
+custom domain. `wrangler.jsonc` remains a checked fallback for the local test pool and secret
+commands. Deploying creates the domain's DNS record and certificate, and redeploying an unchanged
 Worker changes nothing.
 
 1. Check: open <https://events.lasvegasfortransit.org/health>. If it answers, go to section 6.
@@ -117,7 +114,7 @@ Worker changes nothing.
 events do not use it. It is 32 random bytes written as 64 hexadecimal characters. Setup makes it
 without ever showing it, and it never needs to be copied.
 
-1. Check:
+1. Check with Wrangler while `cf` lacks a single-secret stdin command:
 
    ```bash
    pnpm --filter @lasvegasfortransit/analytics-collector exec wrangler secret list

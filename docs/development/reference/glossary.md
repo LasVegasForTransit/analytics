@@ -27,8 +27,9 @@ Cloudflare Web Analytics supplies LVBT's RUM data.
 **UTM parameters** are conventional campaign query parameters such as `utm_source`. Cloudflare Web
 Analytics handles them; custom events do not copy them.
 
-**Wrangler** is Cloudflare's Worker development and deployment command. The collector build runs a
-Wrangler deployment dry run.
+**Cloudflare CLI (`cf`)** builds and deploys the collector. Its typed configuration declares the
+Worker, custom domain, Analytics Engine dataset, rate limit, and secret. **Wrangler** remains for
+the local test pool, generated runtime types, and secret rotation during the CLI beta.
 
 **pnpm** is the package manager pinned by the repository. **Turborepo** orders and caches scripts
 across the client, collector, and report workspaces.

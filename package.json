@@ -6,7 +6,7 @@
     "bootstrap": "lvbt bootstrap",
     "preflight": "lvbt preflight",
     "build": "turbo run build",
-    "deploy": "pnpm check && pnpm --filter @lasvegasfortransit/analytics-collector exec wrangler deploy",
+    "deploy": "lvbt deploy",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",

@@ -23,7 +23,7 @@ pnpm check
 
 The check formats and lints the repository, validates documentation and repository structure,
 typechecks every workspace, runs browser-unit and real-workerd tests, builds the package, checks its
-published exports, and performs a Wrangler dry run.
+published exports, builds the collector with `cf`, and checks its Cloudflare configuration.
 
 Use the focused commands while changing one boundary:
 

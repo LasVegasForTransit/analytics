@@ -10,7 +10,7 @@ assert.equal(parsed.error, undefined, 'Wrangler fallback must be valid JSONC');
 const wrangler = parsed.config;
 const worker = cloudflare.worker;
 
-assert.equal(cloudflare.accountId, '2557b5c2e166292ded0f8425b73075e9');
+assert.equal('accountId' in cloudflare, false);
 assert.equal(worker.name, wrangler.name);
 assert.equal(worker.entrypoint, wrangler.main);
 assert.equal(worker.compatibilityDate, wrangler.compatibility_date);

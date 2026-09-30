@@ -1,7 +1,6 @@
 import { bindings, defineConfig } from 'cf/config';
 
 export default defineConfig({
-  accountId: '2557b5c2e166292ded0f8425b73075e9',
   worker: {
     name: 'lvbt-analytics-events',
     compatibilityDate: '2026-08-22',

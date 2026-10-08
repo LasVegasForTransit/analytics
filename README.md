@@ -54,3 +54,7 @@ pnpm check
 The workspace contains the published client in `packages/analytics`, the collector Worker in
 `apps/collector`, and the fixed-query report command in `tools/report`. The
 [documentation index](docs/README.md) groups contributor material by task.
+
+Tests extend the shared Vitest and Playwright configurations. Client unit tests use happy-dom;
+collector tests use workerd. Browser privacy acceptance runs on desktop and mobile Chromium against
+a production-like hostname.

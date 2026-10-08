@@ -13,10 +13,11 @@
   "devDependencies": {
     "@lasvegasfortransit/eslint-config": "file:../../.lvbt/web-platform/packages/eslint-config",
     "@lasvegasfortransit/typescript-config": "file:../../.lvbt/web-platform/packages/typescript-config",
+    "@lasvegasfortransit/vitest-config": "file:../../.lvbt/web-platform/packages/vitest-config",
     "@types/node": "catalog:",
     "eslint": "catalog:",
-    "tsx": "catalog:",
     "tsdown": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

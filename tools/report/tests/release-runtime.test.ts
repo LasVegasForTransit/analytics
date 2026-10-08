@@ -1,9 +1,10 @@
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { expect, it } from 'vitest';
+import { promisify } from 'node:util';
+import { beforeAll, expect, it } from 'vitest';
 
 const root = path.resolve(import.meta.dirname, '../../..');
 const require = createRequire(import.meta.url);
@@ -65,14 +66,23 @@ it('the installed CLI reaches the real shared artifact and attestation engine wi
   }
 }, 15_000);
 
-it('the weekly report command reaches its product argument validation without a root runtime executable', () => {
-  let diagnostic = '';
+let reportDiagnostic = '';
+// Starting pnpm and its owning package is bounded integration setup. The
+// product argument assertions retain the shared unit timeout and need no credentials.
+beforeAll(async () => {
   try {
-    execFileSync('pnpm', ['run', 'report', '--days', '8'], { cwd: root, stdio: 'pipe' });
+    await promisify(execFile)('pnpm', ['run', 'report', '--days', '8'], {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: 25_000,
+    });
   } catch (error) {
-    const failure = error as { stderr?: Buffer; stdout?: Buffer };
-    diagnostic = `${failure.stderr?.toString() ?? ''}${failure.stdout?.toString() ?? ''}`;
+    const failure = error as { stderr?: string; stdout?: string };
+    reportDiagnostic = `${failure.stderr ?? ''}${failure.stdout ?? ''}`;
   }
-  expect(diagnostic).toContain('--days must be 7 or 30.');
-  expect(diagnostic).not.toMatch(/command not found|Command "tsx" not found/);
+}, 30_000);
+
+it('the weekly report command reaches its product argument validation without a root runtime executable', () => {
+  expect(reportDiagnostic).toContain('--days must be 7 or 30.');
+  expect(reportDiagnostic).not.toMatch(/command not found|Command "tsx" not found/);
 });

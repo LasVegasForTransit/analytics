@@ -25,7 +25,7 @@
       "dependsOn": ["^build"]
     },
     "validate": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build", "//#security:secrets", "//#security:dependencies"]
     },
     "test:e2e": {
       "dependsOn": ["build"],
@@ -35,6 +35,17 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "@lasvegasfortransit/analytics#validate": {
+      "dependsOn": ["build", "test:e2e", "//#security:secrets", "//#security:dependencies"],
+      "cache": false
+    },
+    "//#security:secrets": {
+      "cache": false
+    },
+    "//#security:dependencies": {
+      "cache": false
     }
-  }
+  },
+  "globalDependencies": [".lvbt/web-platform.json", ".lvbt/tooling.json", ".github/workflows/**"]
 }

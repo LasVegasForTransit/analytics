@@ -8,11 +8,19 @@ on:
 permissions:
   contents: read
   issues: write
+  actions: read
+  packages: read
+
+concurrency:
+  group: analytics-recurring-issues
+  cancel-in-progress: false
 
 jobs:
   report:
     name: Verify production and update report
-    if: vars.LVBT_ANALYTICS_LIVE == '1' || github.event_name == 'workflow_dispatch'
+    if: >-
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
+      (vars.LVBT_ANALYTICS_LIVE == '1' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -25,6 +33,7 @@ jobs:
         uses: ./.github/actions/setup-node-pnpm
 
       - name: Build
+        id: build
         run: pnpm build
 
       - name: Install Chromium
@@ -32,6 +41,7 @@ jobs:
           pnpm --filter @lasvegasfortransit/analytics exec playwright install --with-deps chromium
 
       - name: Verify public sites
+        id: verify
         run: |
           node packages/analytics/dist/cli/index.mjs verify https://lasvegasfortransit.org \
             --site lasvegasfortransit.org --expect present
@@ -45,6 +55,7 @@ jobs:
             --site lvwwd.org --expect present
 
       - name: Build reports
+        id: reports
         run: |
           pnpm report --days 7 > report-7.md
           pnpm report --days 30 > report-30.md
@@ -52,95 +63,72 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_ANALYTICS_READ_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_READ_TOKEN }}
 
-      - name: Update stable report issue
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          script: |
-            const fs = require('node:fs');
-            const title = 'LVBT analytics weekly report';
-            const body = [
-              `Updated ${new Date().toISOString().slice(0, 10)}.`,
-              '',
-              fs.readFileSync('report-7.md', 'utf8'),
-              fs.readFileSync('report-30.md', 'utf8'),
-              '',
-              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-            ].join('\n');
-            const issues = await github.paginate(github.rest.issues.listForRepo, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: 'analytics-report',
-              state: 'open',
-              per_page: 100,
-            });
-            const existing = issues.find((issue) => issue.title === title && !issue.pull_request);
-            const issue = existing
-              ? await github.rest.issues.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: existing.number,
-                  body,
-                })
-              : await github.rest.issues.create({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  title,
-                  body,
-                  labels: ['analytics-report'],
-                });
-            const pinState = await github.graphql(
-              `query($owner: String!, $repo: String!, $number: Int!) {
-                repository(owner: $owner, name: $repo) {
-                  issue(number: $number) { id isPinned }
-                }
-              }`,
-              { owner: context.repo.owner, repo: context.repo.repo, number: issue.data.number },
-            );
-            if (!pinState.repository.issue.isPinned) {
-              await github.graphql(
-                `mutation($id: ID!) { pinIssue(input: { issueId: $id }) { issue { id } } }`,
-                { id: pinState.repository.issue.id },
-              );
-            }
+      - name: Prepare contribution actions from actual report outcomes
+        if: always()
+        env:
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+          REPORT_OUTCOME: ${{ steps.reports.outcome }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const env = process.env;
+          let healthy = [env.BUILD_OUTCOME, env.VERIFY_OUTCOME, env.REPORT_OUTCOME].every(value => value === 'success');
+          const workflow = '.github/workflows/weekly.yml';
+          const runUrl = `${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}`;
+          const date = new Date().toISOString().slice(0, 10);
+          const readReport = file => {
+            const text = readFileSync(file, 'utf8');
+            if (!text.trim()) throw new Error(`Missing report content: ${file}`);
+            return text;
+          };
+          let reportBody;
+          let reportError;
+          try { reportBody = healthy ? [
+            '# Problem', '', 'People need a current view of production LVBT analytics.', '',
+            '# Proposed change', '', `Review the verified seven-day and thirty-day reports updated ${date}.`, '',
+            '# Additional context', '', readReport('report-7.md'), readReport('report-30.md'),
+          ].join('\n') : undefined; } catch (error) { healthy = false; reportError = error.message; }
+          const maintenanceBody = [
+            '# Steps to reproduce', '', `Run Analytics weekly report on the default branch. Evidence: ${runUrl}.`, '',
+            '# Expected behavior', '', 'The production site checks and both analytics reports succeed.', '',
+            '# Actual behavior', '', healthy ? 'All verified checks and reports now pass.' :
+              `Build: ${env.BUILD_OUTCOME}; public verification: ${env.VERIFY_OUTCOME}; reports: ${env.REPORT_OUTCOME}. ${reportError ?? ''}`, '',
+            '# Additional context', '', `Checked ${date}. The workflow log identifies the failed command.`,
+          ].join('\n');
+          writeFileSync('lvbt-recurring-issues.json', JSON.stringify({
+            version: 1, repository: env.GITHUB_REPOSITORY, commit: env.GITHUB_SHA,
+            run: { id: env.GITHUB_RUN_ID, attempt: Number(env.GITHUB_RUN_ATTEMPT), repository: env.GITHUB_REPOSITORY,
+              headSha: env.GITHUB_SHA, headBranch: env.GITHUB_REF_NAME, event: env.GITHUB_EVENT_NAME, workflow, url: runUrl },
+            results: [
+              { key: 'weekly-report', status: healthy ? 'open' : 'error', ...(reportBody ? { body: reportBody } : {}) },
+              { key: 'weekly-maintenance', status: healthy ? 'resolved' : env.GITHUB_EVENT_NAME === 'schedule' ? 'open' : 'error', body: maintenanceBody },
+            ],
+          }, null, 2));
+          if (reportError) { console.error(reportError); process.exitCode = 1; }
+          NODE
 
-  notify:
-    name: Update maintenance issue on failure
-    needs: report
-    if: failure() && github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    steps:
-      - name: Update stable maintenance issue
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      - name: Retain verified contribution actions
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          script: |
-            const title = 'Analytics weekly check needs attention';
-            const body = [
-              `The check failed on ${new Date().toISOString().slice(0, 10)}.`,
-              '',
-              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-            ].join('\n');
-            const issues = await github.paginate(github.rest.issues.listForRepo, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: 'analytics,maintenance',
-              state: 'open',
-              per_page: 100,
-            });
-            const existing = issues.find((issue) => issue.title === title && !issue.pull_request);
-            if (existing) {
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: existing.number,
-                body,
-              });
-            } else {
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title,
-                body,
-                labels: ['analytics', 'maintenance'],
-              });
-            }
+          name: lvbt-weekly-issues
+          path: lvbt-recurring-issues.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Preview complete recurring contributions
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          node .lvbt/web-platform/packages/cli/plugins/lvbt-contributions/scripts/github-create.mjs
+          recurring --input lvbt-recurring-issues.json --dry-run --json
+
+      - name: Reconcile and verify stored recurring contributions
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          node .lvbt/web-platform/packages/cli/plugins/lvbt-contributions/scripts/github-create.mjs
+          recurring --input lvbt-recurring-issues.json --json

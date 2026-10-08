@@ -1,0 +1,94 @@
+{
+  "$schema": "./web-platform/packages/cli/tooling.schema.json",
+  "version": 1,
+  "local": {
+    "env": [],
+    "optional": [
+      {
+        "name": "CLOUDFLARE_ACCOUNT_ID",
+        "purpose": "Production analytics reports and deployment only; local development does not require provider sign-in."
+      },
+      {
+        "name": "CLOUDFLARE_ANALYTICS_READ_TOKEN",
+        "purpose": "Production analytics reports only; supply through the workflow secret rather than local bootstrap."
+      },
+      {
+        "name": "PUBLIC_LVBT_ANALYTICS_COLLECTOR",
+        "purpose": "Override the collector origin for browser acceptance or a reviewed isolated staging collector."
+      },
+      {
+        "name": "LVBT_PREVIEW_URL",
+        "purpose": "Reviewed HTTPS origin for an isolated collector preview behind Cloudflare Access; required for staging, not ordinary local checks."
+      },
+      {
+        "name": "LVBT_PREVIEW_BINDINGS",
+        "purpose": "Public JSON descriptor for an isolated EVENTS dataset, distinct EVENT_LIMITER namespace, and secret declaration; required for saved staging artifacts."
+      },
+      {
+        "name": "CLOUDFLARE_ZONE_ID",
+        "purpose": "Explicit zone identifier for production readiness only; find the existing lasvegasfortransit.org zone ID in Cloudflare, without changing DNS or provider resources."
+      }
+    ]
+  },
+  "audits": {
+    "workflow": ".github/workflows/audit-scheduled.yml",
+    "artifactName": "lvbt-audit-report",
+    "dependencies": {
+      "local": {
+        "command": ["pnpm", "audit", "--prod", "--audit-level=low", "--json"],
+        "format": "pnpm"
+      },
+      "production": {
+        "command": ["pnpm", "audit", "--prod", "--audit-level=low", "--json"],
+        "format": "pnpm"
+      }
+    }
+  },
+  "release": {
+    "appDirectory": "apps/collector",
+    "productionUrl": "https://events.lasvegasfortransit.org",
+    "previewUrlEnv": "LVBT_PREVIEW_URL",
+    "productionWorker": "lvbt-analytics-events",
+    "previewWorker": "lvbt-analytics-events-preview",
+    "workersDevSubdomain": "las-vegas-for-better-transit",
+    "artifactPrefix": "analytics-release",
+    "artifactSource": "cf-output",
+    "stagingWorkflow": {
+      "name": "Deploy collector staging",
+      "path": ".github/workflows/deploy-collector-staging.yml",
+      "branch": "main"
+    },
+    "promotionWorkflow": {
+      "file": "promote-collector.yml",
+      "titlePrefix": "Promote collector release",
+      "branch": "main"
+    },
+    "previewBindingsEnv": "LVBT_PREVIEW_BINDINGS",
+    "smoke": {
+      "path": "/health",
+      "status": 200,
+      "body": "ok"
+    }
+  },
+  "contributions": {
+    "recurring": {
+      "weekly-report": {
+        "workflow": ".github/workflows/weekly.yml",
+        "artifactName": "lvbt-weekly-issues",
+        "title": "LVBT analytics weekly report",
+        "type": "feature",
+        "labels": ["analytics-report"],
+        "pin": true,
+        "adoptExisting": true
+      },
+      "weekly-maintenance": {
+        "workflow": ".github/workflows/weekly.yml",
+        "artifactName": "lvbt-weekly-issues",
+        "title": "Analytics weekly check needs attention",
+        "type": "bug",
+        "labels": ["analytics", "maintenance"],
+        "adoptExisting": true
+      }
+    }
+  }
+}

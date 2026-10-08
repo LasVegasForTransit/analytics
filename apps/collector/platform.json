@@ -1,0 +1,122 @@
+{
+  "$schema": "../../node_modules/@lasvegasfortransit/cli/platform.schema.json",
+  "version": 1,
+  "name": "events.lasvegasfortransit.org",
+  "cloudflare": {
+    "accountIdEnv": "CLOUDFLARE_ACCOUNT_ID",
+    "zone": {
+      "name": "lasvegasfortransit.org",
+      "idEnv": "CLOUDFLARE_ZONE_ID"
+    },
+    "worker": "lvbt-analytics-events",
+    "cloudflareConfig": "cloudflare.config.ts",
+    "wranglerConfig": "wrangler.jsonc",
+    "domains": ["events.lasvegasfortransit.org"]
+  },
+  "analyticsEngine": [
+    {
+      "binding": "EVENTS",
+      "name": "lvbt_events"
+    }
+  ],
+  "rateLimits": [
+    {
+      "binding": "EVENT_LIMITER",
+      "namespace": "1001",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
+    }
+  ],
+  "secrets": [
+    {
+      "name": "LVBT_EVENTS_SECRET",
+      "purpose": "Authenticates signed server events sent to the collector.",
+      "use": "live",
+      "neededFor": "Authenticated server-event ingestion",
+      "targets": ["worker"],
+      "url": "https://dash.cloudflare.com/",
+      "steps": [
+        "Open the existing lvbt-analytics-events Worker in the LVBT Cloudflare account and review Settings \u2192 Variables and Secrets.",
+        "If LVBT_EVENTS_SECRET already exists, preserve it and the server clients that use it; rotate only through the approved maintainer process.",
+        "If the secret is missing, obtain the approved signing credential from the maintainer responsible for authenticated server events, then paste it into the setup prompt."
+      ]
+    },
+    {
+      "name": "CLOUDFLARE_ACCOUNT_ID",
+      "purpose": "Identifies the account for the existing production release environment and isolated preview environment.",
+      "targets": ["github:production", "github:collector-preview"],
+      "from": "cloudflare.accountId",
+      "sensitive": false
+    },
+    {
+      "name": "CLOUDFLARE_API_TOKEN",
+      "purpose": "Publishes reviewed collector versions from the existing production environment.",
+      "use": "live",
+      "neededFor": "Collector production promotion",
+      "targets": ["github:production"],
+      "url": "https://dash.cloudflare.com/profile/api-tokens",
+      "steps": [
+        "Review the existing approved collector deployment token and verify it has the permissions intended for production publishing in the declared account.",
+        "Preserve a token already stored in the production environment; replace it only through the maintainer's approved rotation process.",
+        "If the environment secret is missing, copy the approved token from the maintainer credential store and paste it into the setup prompt."
+      ]
+    },
+    {
+      "name": "CLOUDFLARE_API_TOKEN",
+      "purpose": "Uploads and activates only reviewed collector preview versions using a credential independent of the production deployment token.",
+      "use": "live",
+      "neededFor": "Isolated collector staging publication",
+      "targets": ["github:collector-preview"],
+      "url": "https://dash.cloudflare.com/profile/api-tokens",
+      "steps": [
+        "Review the approved deployment permissions for the separate lvbt-analytics-events-preview Worker in the declared LVBT account.",
+        "Preserve an existing collector-preview environment token. If none exists, obtain a separately approved preview deployment credential through the maintainer process; do not copy the production deployment token.",
+        "Copy the approved preview token from its credential store and paste it into this scope-specific setup prompt."
+      ]
+    },
+    {
+      "name": "CF_ACCESS_CLIENT_ID",
+      "purpose": "Identifies the service credential authorized to verify the isolated collector preview.",
+      "use": "live",
+      "neededFor": "Protected collector staging verification",
+      "targets": ["github:collector-preview"],
+      "url": "https://one.dash.cloudflare.com/",
+      "steps": [
+        "Open the LVBT Zero Trust account and review the service token authorized by the collector preview Access application's service-auth policy.",
+        "Use the approved token scoped to the preview Worker and version preview hostnames; do not reuse an unrelated production service credential.",
+        "Copy its client ID and paste it into the setup prompt."
+      ]
+    },
+    {
+      "name": "CF_ACCESS_CLIENT_SECRET",
+      "purpose": "Authorizes identity and health verification through the isolated collector preview Access application.",
+      "use": "live",
+      "neededFor": "Protected collector staging verification",
+      "targets": ["github:collector-preview"],
+      "url": "https://one.dash.cloudflare.com/",
+      "steps": [
+        "Review the approved collector preview service token with the maintainer who owns its Access policy.",
+        "Preserve the existing service token and policy; create or rotate a credential only through the maintainer's approved process.",
+        "Copy its stored client secret and paste it into the setup prompt."
+      ]
+    }
+  ],
+  "github": {
+    "repository": "LasVegasForTransit/analytics",
+    "governance": true,
+    "variables": [
+      {
+        "name": "LVBT_PREVIEW_URL",
+        "purpose": "The reviewed isolated collector HTTPS origin behind Cloudflare Access.",
+        "use": "live"
+      },
+      {
+        "name": "LVBT_PREVIEW_BINDINGS",
+        "purpose": "The explicit public preview binding descriptor selecting a distinct dataset and rate-limit namespace, plus a secret declaration without its value.",
+        "use": "live"
+      }
+    ]
+  }
+}

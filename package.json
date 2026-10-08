@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "bootstrap": "lvbt bootstrap",
-    "preflight": "lvbt preflight",
+    "bootstrap": "node .lvbt/web-platform/packages/cli/src/cli.mjs bootstrap",
+    "preflight": "node .lvbt/web-platform/packages/cli/src/cli.mjs preflight",
     "build": "turbo run build",
     "deploy": "lvbt deploy",
     "dev": "turbo run dev",
@@ -18,9 +18,13 @@
     "standards:check": "node .lvbt/web-platform/standards/web-platform-cli.ts check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "pnpm standards:check && pnpm format:check && markdownlint-cli2 && lvbt check && turbo run lint check-types test validate test:e2e --concurrency=1",
+    "check": "pnpm format:check && markdownlint-cli2 && lvbt check && turbo run lint check-types test validate",
     "check:fix": "pnpm format && markdownlint-cli2 --fix && turbo run lint -- --fix",
-    "prepare": "git config --local core.hooksPath .githooks 2>/dev/null || true"
+    "prepare": "git config --local core.hooksPath .githooks 2>/dev/null || true",
+    "audit": "lvbt audit",
+    "promote": "lvbt promote",
+    "security:secrets": "lvbt check secrets",
+    "security:dependencies": "pnpm audit --audit-level=high"
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"

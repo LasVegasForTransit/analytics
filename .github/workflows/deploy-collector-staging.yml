@@ -1,0 +1,48 @@
+name: Deploy collector staging
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/collector/**'
+      - 'packages/analytics/src/events.ts'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.lvbt/**'
+      - '.github/workflows/deploy-collector-staging.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  deployments: write
+  packages: read
+
+concurrency:
+  group: analytics-collector-staging
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    uses: LasVegasForTransit/repository-tooling/.github/workflows/release-build.yml@ac987b64a242c142b668abed03fb0aca73632767
+    with:
+      app-directory: apps/collector
+      validation-browser-directory: packages/analytics
+      artifact-prefix: analytics-release
+    secrets: inherit
+  staging:
+    needs: build
+    uses: LasVegasForTransit/repository-tooling/.github/workflows/release-publish.yml@ac987b64a242c142b668abed03fb0aca73632767
+    with:
+      target: preview
+      release-id: ${{ github.run_id }}
+      commit: ${{ github.sha }}
+      artifact-prefix: analytics-release
+      app-directory: apps/collector
+      url: ${{ vars.LVBT_PREVIEW_URL }}
+      smoke-script: api
+      browser-script: none
+      preview-environment: collector-preview
+    secrets: inherit

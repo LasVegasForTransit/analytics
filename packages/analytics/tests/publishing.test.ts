@@ -39,4 +39,8 @@ test('publishes from the canonical repository through GitHub Packages', async ()
     expect(weekly).toContain(`verify https://${site}`);
     expect(weekly).toContain(`--site ${site} --expect present`);
   }
+  expect(weekly).toMatch(/github-create\.mjs\s+recurring/);
+  expect(weekly).toContain('--dry-run --json');
+  expect(weekly).toContain('lvbt-recurring-issues.json');
+  expect(weekly).not.toMatch(/github\.rest\.issues\.(create|update)|mutation.*pinIssue/);
 });

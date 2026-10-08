@@ -1,0 +1,54 @@
+name: Promote collector release
+run-name:
+  "Promote collector release: ${{ inputs.request_id || inputs.run_id || 'current preview' }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_version:
+        description:
+          Current production Worker version UUID; required for first saved-release adoption
+        type: string
+        required: false
+      run_id:
+        description: Successful Deploy collector staging run ID; omit to select the actual preview
+        type: string
+        required: false
+      request_id:
+        description: Correlation ID supplied by lvbt promote
+        type: string
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+  deployments: write
+  packages: read
+
+concurrency:
+  group: analytics-collector-production
+  cancel-in-progress: false
+
+jobs:
+  source:
+    if: github.ref == 'refs/heads/main'
+    uses: LasVegasForTransit/repository-tooling/.github/workflows/release-source.yml@ac987b64a242c142b668abed03fb0aca73632767
+    with:
+      run-id: ${{ inputs.run_id }}
+      preview-environment: collector-preview
+    secrets: inherit
+  promote:
+    needs: source
+    uses: LasVegasForTransit/repository-tooling/.github/workflows/release-publish.yml@ac987b64a242c142b668abed03fb0aca73632767
+    with:
+      target: production
+      expected-version: ${{ inputs.expected_version }}
+      release-id: ${{ needs.source.outputs.release-id }}
+      commit: ${{ needs.source.outputs.commit }}
+      artifact-prefix: analytics-release
+      app-directory: apps/collector
+      url: https://events.lasvegasfortransit.org
+      smoke-script: api
+      browser-script: none
+      production-environment: production
+    secrets: inherit

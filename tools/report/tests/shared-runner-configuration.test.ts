@@ -1,7 +1,8 @@
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { expect, it } from 'vitest';
+import { promisify } from 'node:util';
+import { beforeAll, expect, it } from 'vitest';
 
 const root = path.resolve(import.meta.dirname, '../../..');
 const runtime = createRequire(import.meta.url).resolve('tsx');
@@ -19,25 +20,40 @@ interface RunnerConfiguration {
   plugins?: string[];
 }
 const configurations = new Map<string, RunnerConfiguration>();
+const files = [
+  'packages/analytics/vitest.config.ts',
+  'apps/collector/vitest.config.ts',
+  'tools/report/vitest.config.ts',
+  'packages/analytics/playwright.config.ts',
+];
+
+// Cold-loading the actual Cloudflare/Vitest stacks is integration setup, not a
+// unit-test latency budget. Reuse one bounded child; assertions keep the shared timeout.
+beforeAll(async () => {
+  const { stdout } = await promisify(execFile)(
+    process.execPath,
+    [
+      '--import',
+      runtime,
+      '--input-type=module',
+      '--eval',
+      `const result = {};
+      for (const file of ${JSON.stringify(files)}) {
+        const {default:c} = await import(${JSON.stringify(root)} + '/' + file);
+        result[file] = {...c, plugins:c.plugins?.flat(Infinity).map(p=>p.name)};
+      }
+      console.log(JSON.stringify(result));`,
+    ],
+    { cwd: root, encoding: 'utf8', timeout: 25_000 },
+  );
+  const loaded = JSON.parse(stdout) as Record<string, RunnerConfiguration>;
+  for (const [file, config] of Object.entries(loaded)) configurations.set(file, config);
+}, 30_000);
+
 function configuration(file: string): RunnerConfiguration {
-  const existing = configurations.get(file);
-  if (existing) return existing;
-  const result = JSON.parse(
-    execFileSync(
-      process.execPath,
-      [
-        '--import',
-        runtime,
-        '--input-type=module',
-        '--eval',
-        `const {default:c} = await import(${JSON.stringify(path.join(root, file))});
-        console.log(JSON.stringify({...c, plugins:c.plugins?.flat(Infinity).map(p=>p.name)}));`,
-      ],
-      { cwd: root, encoding: 'utf8' },
-    ),
-  ) as RunnerConfiguration;
-  configurations.set(file, result);
-  return result;
+  const config = configurations.get(file);
+  if (!config) throw new Error(`Actual runner configuration was not loaded: ${file}`);
+  return config;
 }
 
 it('all unit runners exclude browser/support artifacts and reject empty suites without replacing their product runtime', () => {
